@@ -1,127 +1,138 @@
-import { getStarted } from "@/lib/data";
+import Link from "next/link";
 import {
-  BarChart,
+  Approvals,
   Bell,
-  CheckCircle,
   ChevronDown,
   Clock,
   Collapse,
-  EmptyCircle,
+  Doc,
+  Download,
   Folder,
   Help,
+  Members,
   Power,
-  Rocket,
   Send,
+  Settings,
   Star,
+  Tasks,
+  TimeOff,
   Timeline,
   Upgrade,
 } from "./Icons";
 
-const navSections = [
+type NavItem = {
+  name: string;
+  href: string;
+  icon: React.ReactNode;
+  starred?: boolean;
+};
+
+const navSections: { label: string; items: NavItem[] }[] = [
   {
-    label: "TRACK",
-    items: [{ name: "Timer", icon: <Clock />, active: false, starred: false }],
+    label: "Track",
+    items: [{ name: "Timer", href: "/timer", icon: <Clock /> }],
   },
   {
-    label: "ANALYZE",
-    items: [{ name: "Reports", icon: <BarChart />, active: true, starred: false }],
+    label: "Analyze",
+    items: [{ name: "Reports", href: "/reports", icon: <Doc /> }],
   },
   {
-    label: "PLAN",
+    label: "Plan",
     items: [
-      { name: "Projects", icon: <Folder />, active: false, starred: false },
-      { name: "Timeline", icon: <Timeline />, active: false, starred: true },
+      { name: "Projects", href: "/", icon: <Folder /> },
+      { name: "Tasks", href: "/tasks", icon: <Tasks /> },
+      { name: "Timeline", href: "/timeline", icon: <Timeline />, starred: true },
+    ],
+  },
+  {
+    label: "Manage",
+    items: [
+      { name: "Members", href: "/members", icon: <Members /> },
+      { name: "Approvals", href: "/approvals", icon: <Approvals />, starred: true },
+      { name: "Time off", href: "/time-off", icon: <TimeOff />, starred: true },
     ],
   },
 ];
 
-export default function Sidebar() {
+/**
+ * The sidebar is two columns on one black panel: a 48px icon rail and a
+ * 200px nav. The collapse toggle lives in the rail but is rendered inside the
+ * nav flow and shifted left, so it always sits directly under the last nav item.
+ */
+export default function Sidebar({ active }: { active: string }) {
   return (
-    <aside className="sidebar">
-      <div className="org">
-        <div className="org-logo">
-          <Power />
-          <span className="version">2.0</span>
-        </div>
-        <div className="org-name">Ignacio&apos;s organization</div>
-        <ChevronDown size={13} />
+    <div className="side">
+      <div className="rail">
+        <span className="mark" aria-hidden>
+          <Power size={24} />
+        </span>
+
+        <div className="rail-spacer" />
+
+        <button className="rail-btn" aria-label="Account">
+          <span className="avatar">IG</span>
+        </button>
+        <button className="rail-btn" aria-label="Notifications">
+          <Bell />
+        </button>
+        <button className="rail-btn" aria-label="Share feedback">
+          <Send />
+        </button>
+        <button className="rail-btn" aria-label="Help">
+          <Help />
+        </button>
       </div>
 
-      <div className="ask">
-        <span>Ask Toggl ⏎</span>
-        <kbd>Ctrl K</kbd>
-      </div>
-
-      {navSections.map((section) => (
-        <div key={section.label}>
-          <div className="nav-label">{section.label}</div>
-          {section.items.map((item) => (
-            <button
-              key={item.name}
-              className={`nav-item${item.active ? " active" : ""}`}
-            >
-              {item.icon}
-              <span>{item.name}</span>
-              {item.starred && <Star className="star" />}
-            </button>
-          ))}
+      <nav className="nav">
+        <div className="org">
+          <div className="org-name">Ignacio&apos;s organization</div>
+          <ChevronDown size={16} />
         </div>
-      ))}
 
-      <button className="collapse" aria-label="Collapse sidebar">
-        <Collapse />
-      </button>
-
-      <div className="sidebar-spacer" />
-
-      <div className="get-started">
-        <div className="get-started-head">
-          <Rocket />
-          <span>Get started</span>
-          <span className="count">
-            {getStarted.done}/{getStarted.total}
-          </span>
-          <span style={{ display: "flex", transform: "rotate(180deg)" }}>
-            <ChevronDown size={13} />
-          </span>
+        <div className="ask">
+          <span>Ask Toggl ⏎</span>
+          <kbd>Ctrl K</kbd>
         </div>
-        {getStarted.steps.map((step) => (
-          <div
-            key={step.title}
-            className={`step${step.complete ? " complete" : ""}`}
-          >
-            {step.complete ? (
-              <CheckCircle className="check" />
-            ) : (
-              <EmptyCircle className="check" />
-            )}
-            <div>
-              <div className="step-title">{step.title}</div>
-              {step.note && <div className="step-note">{step.note}</div>}
-            </div>
+
+        {navSections.map((section) => (
+          <div key={section.label}>
+            <h6 className="nav-label">{section.label}</h6>
+            {section.items.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`nav-item${
+                  item.name.toLowerCase() === active ? " active" : ""
+                }`}
+              >
+                {item.icon}
+                <span>{item.name}</span>
+                {item.starred && <Star size={12} className="star" />}
+              </Link>
+            ))}
           </div>
         ))}
-      </div>
 
-      <button className="footer-item">
-        <span className="avatar">IG</span>
-      </button>
-      <button className="footer-item">
-        <Bell />
-      </button>
-      <button className="footer-item">
-        <Upgrade className="upgrade-icon" />
-        <span>Upgrade</span>
-        <span className="badge">29 DAYS</span>
-      </button>
-      <button className="footer-item">
-        <Send />
-        <span>Download apps</span>
-      </button>
-      <button className="footer-item">
-        <Help />
-        <span>Admin settings</span>
-      </button>
-    </aside>
+        <button className="collapse" aria-label="Toggle sidebar">
+          <Collapse />
+        </button>
+
+        <div className="nav-spacer" />
+
+        <button className="footer-item">
+          <Upgrade className="upgrade-icon" />
+          <span className="upgrade-text">Upgrade</span>
+          <span className="badge">29 DAYS</span>
+        </button>
+        <button className="footer-item">
+          <Download />
+          <span>Download apps</span>
+        </button>
+        <button className="footer-item">
+          <Settings />
+          <span>Admin settings</span>
+        </button>
+      </nav>
+    </div>
   );
 }

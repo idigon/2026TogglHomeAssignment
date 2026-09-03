@@ -31,7 +31,7 @@ const columns: Column[] = [
 
 export default function BreakdownTable() {
   return (
-    <section className="card">
+    <section className="card breakdown">
       <div className="breakdown-head">
         <h2 className="section-title" style={{ margin: 0 }}>
           Member and task breakdown

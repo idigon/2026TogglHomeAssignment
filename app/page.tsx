@@ -1,106 +1,73 @@
-import BillableChart from "@/components/BillableChart";
-import BreakdownTable from "@/components/BreakdownTable";
+import ProjectsTable from "@/components/ProjectsTable";
 import Sidebar from "@/components/Sidebar";
 import {
-  BarChart,
-  Calendar,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Download,
   Filter,
-  Globe,
+  GroupBy,
+  Star,
+  Templates,
+  ListView,
   Plus,
+  Search,
   Settings,
+  SortBy,
 } from "@/components/Icons";
-import { summary, week } from "@/lib/data";
 
 export default function Page() {
   return (
     <div className="app">
-      <Sidebar />
+      <Sidebar active="projects" />
 
       <main className="main">
         <header className="page-head">
-          <h1 className="page-title">Reports</h1>
-          <button className="control ghost">
-            <Download />
-            Export
-            <ChevronDown />
+          <h1 className="page-title">Projects</h1>
+          <button className="btn-primary">
+            <Plus size={16} />
+            New project
           </button>
         </header>
 
         <div className="toolbar">
           <button className="control">
-            <BarChart size={14} />
-            Summary
+            <ListView />
+            Active
             <ChevronDown />
           </button>
-
-          <div className="date-group">
-            <button className="arrow" aria-label="Previous week">
-              <ChevronLeft size={15} />
-            </button>
-            <span className="date-label">
-              <Calendar />
-              {week.label}
-              <span className="muted">• {week.code}</span>
-            </span>
-            <button className="arrow" aria-label="Next week">
-              <ChevronRight size={15} />
-            </button>
-          </div>
-
-          <button className="control">
+          <button className="control is-active">
             <Filter />
             Filters
+          </button>
+          <button className="control">
+            <GroupBy />
+            Group by
+          </button>
+          <button className="control">
+            <SortBy />
+            Sort by
           </button>
 
           <div className="spacer" />
 
-          <button className="control">
-            <Globe />
-            Shown in USD
-            <ChevronDown />
+          <button className="icon-btn" aria-label="Search">
+            <Search />
           </button>
-          <button className="icon-btn" aria-label="Report settings">
+          <button className="icon-btn templates-btn" aria-label="Manage project templates">
+            <Templates />
+            <Star size={11} className="star-badge" />
+          </button>
+          <button className="icon-btn" aria-label="Project settings">
             <Settings />
           </button>
         </div>
 
-        <button className="filter-add">
-          <Plus />
-          Filter
-        </button>
+        <div className="filter-row">
+          <button className="filter-add">
+            <Plus />
+            Filter
+          </button>
+        </div>
 
-        <section className="card">
-          <div className="stats">
-            <div className="stat">
-              <div className="stat-label">Logged time</div>
-              <div className="stat-value">{summary.loggedTime}</div>
-            </div>
-            <div className="stat">
-              <div className="stat-label">Billable time</div>
-              <div className="stat-value">
-                {summary.billableTime}{" "}
-                <span className="pct">({summary.billablePercent})</span>
-              </div>
-            </div>
-            <div className="stat">
-              <div className="stat-label">Amount</div>
-              <div className="stat-value">
-                {summary.amount} <span className="unit">{summary.currency}</span>
-              </div>
-            </div>
-            <div className="stat">
-              <div className="stat-label">Average daily hours</div>
-              <div className="stat-value">{summary.averageDailyHours}</div>
-            </div>
-          </div>
-        </section>
-
-        <BillableChart />
-        <BreakdownTable />
+        <ProjectsTable />
       </main>
     </div>
   );
