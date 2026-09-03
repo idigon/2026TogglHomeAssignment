@@ -1,3 +1,85 @@
+/* ---------------------------------------------------------------------------
+ * Projects view
+ * -------------------------------------------------------------------------*/
+
+export type ProjectColor = "green" | "orange" | "blue";
+
+export type Project = {
+  name: string;
+  color: ProjectColor;
+  client: string | null;
+  billable: boolean;
+  /** Rendered right-aligned; `None` is shown literally by the real app. */
+  rate: string | null;
+  rateCurrency: string | null;
+  dates: string | null;
+  timeStatus: {
+    /** e.g. "1.51 of 0.5 h" */
+    label: string;
+    /** e.g. "301%" */
+    percent: string;
+    /** Bar fill, 0–1. Over-budget bars clamp to 1 and turn salmon. */
+    fill: number;
+    over: boolean;
+  } | null;
+  fixedFee: string | null;
+  variance: { text: string; positive: boolean } | null;
+};
+
+/** The three projects in the live workspace, in display order. */
+export const projects: Project[] = [
+  {
+    name: "Cool feature",
+    color: "green",
+    client: "Tecno Corp",
+    billable: false,
+    rate: null,
+    rateCurrency: null,
+    dates: null,
+    timeStatus: null,
+    fixedFee: null,
+    variance: null,
+  },
+  {
+    name: "New AI project",
+    color: "orange",
+    client: null,
+    billable: true,
+    rate: "None",
+    rateCurrency: null,
+    dates: null,
+    timeStatus: {
+      label: "1.51 of 0.5 h",
+      percent: "301%",
+      fill: 1,
+      over: true,
+    },
+    fixedFee: null,
+    variance: { text: "-1h 26s", positive: false },
+  },
+  {
+    name: "VIP project",
+    color: "blue",
+    client: "Tecno Corp",
+    billable: true,
+    rate: "27",
+    rateCurrency: "USD",
+    dates: "Sep 2",
+    timeStatus: {
+      label: "0.19 of 25 h",
+      percent: "1%",
+      fill: 0.0076,
+      over: false,
+    },
+    fixedFee: null,
+    variance: { text: "+24h 48m 42s", positive: true },
+  },
+];
+
+/* ---------------------------------------------------------------------------
+ * Reports → Summary (kept for the /reports route)
+ * -------------------------------------------------------------------------*/
+
 export type DayBar = {
   label: string;
   date: string;
@@ -58,13 +140,3 @@ export const rows: BreakdownRow[] = [
     billablePercent: "100%",
   },
 ];
-
-export const getStarted = {
-  done: 2,
-  total: 3,
-  steps: [
-    { title: "Start your first timer", note: "", complete: true },
-    { title: "Track 1h", note: "Reports unlocked", complete: true },
-    { title: "Create a new project or task", note: "Unlocks Tasks", complete: false },
-  ],
-};
