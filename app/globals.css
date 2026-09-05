@@ -2393,8 +2393,9 @@ a {
   background: #221f22;
 }
 
+/* Muted in production, not the accent. */
 .gs-rocket {
-  color: var(--billable);
+  color: var(--text-muted);
   flex: 0 0 auto;
 }
 

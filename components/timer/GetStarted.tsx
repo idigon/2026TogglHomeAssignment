@@ -35,7 +35,7 @@ export default function GetStarted({ steps, collapsed, onToggle }: Props) {
         aria-controls="gs-list"
         onClick={onToggle}
       >
-        <Rocket size={13} className="gs-rocket" />
+        <Rocket size={14} className="gs-rocket" />
         <span className="gs-title">Get started</span>
         <span className="gs-count">
           {done}/{steps.length}
