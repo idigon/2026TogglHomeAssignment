@@ -59,21 +59,14 @@ export type Entry = {
  * has a place for "the system concluded something", and it is non-blocking by
  * construction.
  */
-export type AppNotification = Beat & {
-  /** Task id of the log that produced it. */
+export type AppNotification = {
+  /** Task id of the log that produced it, or a fixed id for standalone ones. */
   id: string;
-  time: string;
-  read: boolean;
-};
-
-/** Which beat of the learning progression a log triggered. */
-export type Beat = {
-  kind: "watching" | "adjusted" | "personal";
-  /** Task type that moved, and how many of it the user has logged. */
-  type: string;
-  label: string;
-  count: number;
+  kind: "watching" | "adjusted" | "personal" | "skipped";
   headline: string;
   detail: string;
-  progress: string;
+  /** Absent on notifications that are not about a run of logged entries. */
+  progress?: string;
+  time: string;
+  read: boolean;
 };

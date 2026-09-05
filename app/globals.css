@@ -98,6 +98,7 @@ a {
 /* ---------- shell ---------- */
 
 .app {
+  position: relative;
   display: flex;
   min-height: 100vh;
 }
@@ -1870,7 +1871,8 @@ a {
   }
 }
 
-/* Anchored to the rail, opening up and to the right of the bell. */
+/* Anchored to the app shell, opening up and to the right of the bell. Not a
+ * child of .side, which clips its overflow for the collapse animation. */
 .nd {
   position: absolute;
   left: calc(var(--rail-w) + 4px);
@@ -2064,7 +2066,8 @@ a {
 /* The two beats where the system actually changed something get the accent,
  * the same way the affected blocks do. */
 .nd-adjusted .nd-avatar,
-.nd-personal .nd-avatar {
+.nd-personal .nd-avatar,
+.nd-skipped .nd-avatar {
   background: var(--nav-active-bg);
   color: var(--billable);
 }

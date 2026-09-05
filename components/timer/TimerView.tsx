@@ -305,6 +305,18 @@ export default function TimerView() {
     const acc: Partial<Record<TaskType, number[]>> = {};
     const out: AppNotification[] = [];
 
+    // Skipping the questions leaves nothing to suggest. Say why.
+    if (phase === "empty") {
+      out.push({
+        id: "skipped",
+        kind: "skipped",
+        headline: COPY.skipped.headline,
+        detail: COPY.skipped.detail,
+        time: `${formatDayLabel(WEEK.todayIndex)}, ${formatClock(WEEK.nowMinutes)}`,
+        read: readIds.includes("skipped"),
+      });
+    }
+
     for (let i = 0; i < logOrder.length; i++) {
       const id = logOrder[i];
       const task = PLAN.find((t) => t.id === id);
@@ -327,7 +339,7 @@ export default function TimerView() {
       const time = `${formatDayLabel(task.day)}, ${formatClock(
         (log.start ?? planEdits[id]?.start ?? task.start) + log.minutes,
       )}`;
-      const base = { id, type: task.type, label, count, progress, time, read: readIds.includes(id) };
+      const base = { id, progress, time, read: readIds.includes(id) };
 
       if (count === 1) {
         out.push({
@@ -375,7 +387,7 @@ export default function TimerView() {
 
     // Newest first, as the drawer shows them.
     return out.reverse();
-  }, [logOrder, logs, profile, readIds, rejected, planEdits]);
+  }, [phase, logOrder, logs, profile, readIds, rejected, planEdits]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -529,20 +541,24 @@ export default function TimerView() {
         notificationsOpen={drawerOpen}
         onToggleNotifications={() => setDrawerOpen((v) => !v)}
         onAskToggl={phase === "onboarding" ? undefined : () => setAskOpen(true)}
-      >
-        {drawerOpen && (
-          <NotificationDrawer
-            notifications={notifications}
-            filter={notifFilter}
-            onFilter={setNotifFilter}
-            onMarkRead={(id) =>
-              setReadIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
-            }
-            onMarkAllRead={() => setReadIds(notifications.map((n) => n.id))}
-            onClose={() => setDrawerOpen(false)}
-          />
-        )}
-      </Sidebar>
+      />
+
+      {/*
+       * Rendered beside the sidebar, not inside it: .side clips its overflow so
+       * the nav can slide away on collapse, which was cutting the drawer off.
+       */}
+      {drawerOpen && (
+        <NotificationDrawer
+          notifications={notifications}
+          filter={notifFilter}
+          onFilter={setNotifFilter}
+          onMarkRead={(id) =>
+            setReadIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
+          }
+          onMarkAllRead={() => setReadIds(notifications.map((n) => n.id))}
+          onClose={() => setDrawerOpen(false)}
+        />
+      )}
 
       <main className="main main-timer">
       {/*

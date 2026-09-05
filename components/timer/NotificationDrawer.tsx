@@ -127,10 +127,10 @@ export default function NotificationDrawer({
                 <div className="nd-item-title">{n.headline}</div>
                 <p className="nd-item-detail">{n.detail}</p>
                 {/*
-                 * The trigger, stated on every one: it is the number of logged
-                 * entries that moves the estimates, not elapsed time.
+                 * The trigger, on the ones that have one: it is the number of
+                 * logged entries that moves the estimates, not elapsed time.
                  */}
-                <span className="nd-progress">{n.progress}</span>
+                {n.progress && <span className="nd-progress">{n.progress}</span>}
                 <div className="nd-time">{n.time}</div>
               </div>
 

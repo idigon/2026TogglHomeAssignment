@@ -645,6 +645,17 @@ export const COPY = {
     why: "Why?",
   },
 
+  /*
+   * Skipping onboarding leaves an empty calendar. Saying nothing would read as
+   * a broken build, so the drawer explains what the skip cost and how to undo
+   * it — the same argument the product makes, applied to the user's own choice.
+   */
+  skipped: {
+    headline: "No cohort, no estimates",
+    detail:
+      "Without your discipline and client type there's no group to compare you to, so there's nothing to suggest. Your first estimates would have come from freelancers doing the same work. Restart demo to answer the three questions.",
+  },
+
   /** The delta a logged entry ran against the estimate it was working to. */
   variance: (delta: number) =>
     `${delta > 0 ? "+" : "−"}${formatDuration(Math.abs(delta))}`,
