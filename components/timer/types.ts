@@ -46,11 +46,6 @@ export type Entry = {
    * not announced in a corner.
    */
   changed?: { from: number; to: number };
-  /**
-   * Lines the details panel shows instead of cohort provenance. Only ever set
-   * on a logged block — the plan for the same task has nothing to explain.
-   */
-  panelNote?: string[];
 };
 
 /**

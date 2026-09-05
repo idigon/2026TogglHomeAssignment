@@ -102,7 +102,7 @@ export default function EntryBlock({
     <div
       className={`tv-block tv-${status}${open ? " open" : ""}${
         entry.changed ? " changed" : ""
-      }${task.chip ? ` p-${task.chip.color}` : ""}`}
+      }`}
       onClick={() => onOpen(open ? null : entry.key)}
       style={
         {
@@ -129,7 +129,7 @@ export default function EntryBlock({
 
         {showMeta && (
           <div className="tv-block-meta">
-            {task.chip ? task.chip.name : `${project.name} · ${project.client}`}
+            {`${project.name} · ${project.client}`}
           </div>
         )}
 

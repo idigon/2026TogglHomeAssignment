@@ -31,8 +31,6 @@
   --project-green-text: #c6ece5;
   --project-orange: #ee7a63;
   --project-orange-text: #f3c3b9;
-  --project-grey: #464245;
-  --project-grey-text: #cfcbcd;
   --project-blue: #9494f9;
   --project-blue-text: #cacafc;
 
@@ -992,41 +990,6 @@ a {
 
 /* Measured off the live app: #9494f9 fill, a 0.667px #2727a5 outline, 8px
  * radius, and 12px/600 title in near-black. */
-/* A block on a different project takes that project's colour pair. */
-.tv-block.p-orange {
-  background: var(--project-orange);
-  border-color: #8f2f16;
-}
-
-.ed-pill.project.p-orange {
-  background: #6b2b12;
-  color: var(--project-orange-text);
-}
-
-.ed-pill.project.p-orange:hover {
-  background: #7d3316;
-}
-
-/*
- * Grey is the quiet one. It sits close to the canvas rather than matching the
- * pastel fills, so the entry that changes nothing carries the least ink on the
- * week — which means light text on it, not the near-black the fills take.
- */
-.tv-block.p-grey {
-  background: var(--project-grey);
-  border-color: #575356;
-  color: var(--project-grey-text);
-}
-
-.ed-pill.project.p-grey {
-  background: #3b383a;
-  color: var(--project-grey-text);
-}
-
-.ed-pill.project.p-grey:hover {
-  background: #454143;
-}
-
 .ed-var-pct {
   margin-left: 5px;
   opacity: 0.85;
@@ -1112,9 +1075,6 @@ a {
 }
 .c-orange {
   background: var(--project-orange);
-}
-.c-grey {
-  background: var(--project-grey);
 }
 .c-blue {
   background: var(--project-blue);
