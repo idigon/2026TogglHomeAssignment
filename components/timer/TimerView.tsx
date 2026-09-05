@@ -413,10 +413,14 @@ export default function TimerView() {
   const learned = notifications.some((n) => n.kind === "personal");
 
   const checklist: ChecklistStep[] = [
-    { label: "Review and adjust the suggested plan", done: planAccepted },
+    {
+      label: "Review and adjust the suggested plan",
+      sub: "You can adjust any planned time if you do not agree with the benchmark",
+      done: planAccepted,
+    },
     {
       label: "Start logging time",
-      sub: "Play on any planned block",
+      sub: "Press Play on any planned block",
       done: hasLogged,
     },
     {
