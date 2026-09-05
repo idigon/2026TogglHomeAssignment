@@ -132,9 +132,9 @@ export default function EntryDetails({
           <kbd>@</kbd>
           Task
         </button>
-        <button className={`ed-pill project${task.chip ? ` p-${task.chip.color}` : ""}`}>
+        <button className="ed-pill project">
           <Folder size={13} />
-          {task.chip ? task.chip.name : project.name}
+          {project.name}
         </button>
         <button className="ed-pill empty">
           <kbd>#</kbd>
@@ -186,7 +186,7 @@ export default function EntryDetails({
        * declined an update and wants to know what they are now holding.
        * A logged block is the one case with nothing to justify.
        */}
-      {!logged && !task.chip && (
+      {!logged && (
         <div className="ed-why">
           {entry.changed && (
             <div className="ed-why-change">
@@ -221,16 +221,6 @@ export default function EntryDetails({
        * calendar the two blocks already sit side by side at their true
        * heights; a number stamped on top of them just adds noise.
        */}
-      {/* A logged entry can carry its own lines. Same box the estimate uses. */}
-      {entry.panelNote && (
-        <div className="ed-why">
-          {entry.panelNote.map((line, i) => (
-            <div key={i} className={i === 0 ? "ed-why-head" : "ed-why-line"}>
-              {line}
-            </div>
-          ))}
-        </div>
-      )}
 
       {logged && (
         <div className="ed-logged">
@@ -245,11 +235,7 @@ export default function EntryDetails({
               </span>
             </span>
           )}
-          {/* A task with its own note is not client work, so the cohort that
-            * produced the project estimates has nothing to say about it. */}
-          {!entry.panelNote && (
-            <span className="ed-logged-basis">{estimate.basisLine.toLowerCase()}</span>
-          )}
+          <span className="ed-logged-basis">{estimate.basisLine.toLowerCase()}</span>
         </div>
       )}
 

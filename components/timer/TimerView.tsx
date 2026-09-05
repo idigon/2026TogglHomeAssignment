@@ -23,12 +23,10 @@ import {
   GRID,
   LEARNING,
   PEER_BENCHMARKS,
-  PERSONAL_TASK,
   PLAN,
   PROJECT,
   TASK_TYPE_LABELS,
   WEEK,
-  cohortWords,
   estimateFor,
   sampleLog,
   formatClock,
@@ -182,7 +180,7 @@ export default function TimerView() {
   const entries = useMemo<Entry[]>(() => {
     if (!hasPlan) return [];
 
-    const tasks = [...PLAN, PERSONAL_TASK];
+    const tasks = PLAN;
 
     /*
      * Walk the logs in the order they happened, accumulating actuals per task
@@ -282,13 +280,6 @@ export default function TimerView() {
           day: task.day,
           // Against the plan, whatever the plan currently is.
           variance: log.minutes - estimate.minutes,
-          panelNote:
-            task.noteKind === "assignment" && estimate.minutes > 0
-              ? COPY.assignmentNote(
-                  Math.round(((log.minutes - estimate.minutes) / estimate.minutes) * 100),
-                  cohortWords(profile).specific,
-                )
-              : undefined,
         });
       }
     }

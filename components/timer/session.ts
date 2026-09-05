@@ -1,9 +1,4 @@
-import {
-  DEFAULT_PROFILE,
-  GRID,
-  PERSONAL_TASK,
-  PERSONAL_TASK_LOG,
-} from "@/lib/timerData";
+import { DEFAULT_PROFILE, GRID } from "@/lib/timerData";
 import type { Profile } from "@/lib/timerData";
 import type { EntryStatus } from "./types";
 
@@ -67,15 +62,6 @@ export function beginSession(profile: Profile | null): Session {
     planEdits: {},
     resolvedChanges: {},
   };
-
-  if (profile) {
-    /*
-     * The one entry that arrives already logged. Seeded here rather than added
-     * to logOrder, so it raises no notification and feeds no benchmark.
-     */
-    next.statuses[PERSONAL_TASK.id] = "planned";
-    next.logs[PERSONAL_TASK.id] = PERSONAL_TASK_LOG;
-  }
 
   snapshot = next;
   return next;

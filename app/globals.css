@@ -990,21 +990,6 @@ a {
 
 /* Measured off the live app: #9494f9 fill, a 0.667px #2727a5 outline, 8px
  * radius, and 12px/600 title in near-black. */
-/* A block on a different project takes that project's colour pair. */
-.tv-block.p-orange {
-  background: var(--project-orange);
-  border-color: #8f2f16;
-}
-
-.ed-pill.project.p-orange {
-  background: #6b2b12;
-  color: var(--project-orange-text);
-}
-
-.ed-pill.project.p-orange:hover {
-  background: #7d3316;
-}
-
 .ed-var-pct {
   margin-left: 5px;
   opacity: 0.85;
@@ -1029,18 +1014,23 @@ a {
   overflow: hidden;
 }
 
+/*
+ * Titles are longer than the lane is wide, so they always truncate. Clamping
+ * to the line budget the block hands down ends them in an ellipsis on a whole
+ * word; the full title is in the tooltip and in the details panel.
+ */
 .tv-block-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--title-lines, 2);
+  line-clamp: var(--title-lines, 2);
+  overflow: hidden;
+  /* anywhere, not break-word: in a lane this narrow a single word can be wider
+   * than the block, and that is the case break-word declines to handle. */
+  overflow-wrap: anywhere;
   font-size: 12px;
   font-weight: 600;
   line-height: 16px;
-  overflow: hidden;
-}
-
-/* Short blocks keep the title to one line so the estimate still fits. */
-.tv-block.tight .tv-block-title {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
 }
 
 .tv-block-meta {
@@ -1130,6 +1120,18 @@ a {
   font-weight: 600;
   color: #ffffff;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tv-est-basis,
+.tv-est-note {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 .tv-est-basis {

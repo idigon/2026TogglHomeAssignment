@@ -257,8 +257,7 @@ export type TaskType =
   | "typography"
   | "design-review"
   | "guidelines"
-  | "revisions"
-  | "assignment";
+  | "revisions";
 
 /** Human names for the task types, used in the learning-progression copy. */
 export const TASK_TYPE_LABELS: Record<TaskType, string> = {
@@ -272,7 +271,6 @@ export const TASK_TYPE_LABELS: Record<TaskType, string> = {
   "design-review": "design review",
   guidelines: "guidelines draft",
   revisions: "revisions round",
-  assignment: "assignment",
 };
 
 export type Benchmark = {
@@ -323,13 +321,6 @@ export const PEER_BENCHMARKS: Record<TaskType, Benchmark> = {
     sampleSize: 3140,
     specSample: 7,
   },
-
-  /*
-   * Not project work and not part of the model. Only the median is ever used
-   * (as the 6h plan); the panel suppresses cohort provenance for this task
-   * entirely, because there is no cohort behind a personal entry.
-   */
-  assignment: { median: 360, spread: 0.2, basis: "specialization", sampleSize: 0 },
 };
 
 /* ---------------------------------------------------------------------------
@@ -388,14 +379,6 @@ export type PlannedTask = {
   reviewIndex?: number;
   billable?: boolean;
   tag?: string;
-  /** A different project chip, for work that is not on the client project. */
-  chip?: { name: string; color: ProjectColor };
-  /**
-   * Marks a task whose details panel carries its own lines instead of the
-   * cohort provenance. The lines themselves are built at render time, because
-   * they name the cohort the user picked in onboarding.
-   */
-  noteKind?: "assignment";
 };
 
 export const PLAN: PlannedTask[] = [
@@ -521,31 +504,6 @@ export const PLAN: PlannedTask[] = [
 ];
 
 /* ---------------------------------------------------------------------------
- * 6z. One entry that is not client work
- *
- * Lands already logged, on a different project chip, late on Saturday where it
- * cannot compete with the four design reviews for an evaluator's attention.
- *
- * Deliberately outside the model: it is seeded straight into the logs without
- * entering the log order, so it produces no notification, feeds no benchmark,
- * and cannot shift a single estimate. It is an entry that happens to be true,
- * not a joke wired into the machinery.
- * -------------------------------------------------------------------------*/
-
-export const PERSONAL_TASK: PlannedTask = {
-  id: "assignment",
-  title: "Toggl home assignment",
-  type: "assignment",
-  day: 5,
-  start: 13 * 60,
-  chip: { name: "Personal", color: "orange" },
-  noteKind: "assignment",
-};
-
-/** Estimated 6h, took 8h. */
-export const PERSONAL_TASK_LOG = { minutes: 8 * 60 };
-
-/* ---------------------------------------------------------------------------
  * 6a. How long this user ACTUALLY takes
  *
  * The ground truth the benchmarks are converging on. Actuals are sampled from
@@ -601,8 +559,6 @@ export const TRUE_PACE: Record<TaskType, { minutes: number; jitter: number }> = 
   guidelines: { minutes: 195, jitter: 45 },
   // 90 — about right, but erratic.
   revisions: { minutes: 90, jitter: 30 },
-  // Never sampled: PERSONAL_TASK carries its own fixed actual.
-  assignment: { minutes: 480, jitter: 0 },
 };
 
 export const LOGGING = {
@@ -742,16 +698,6 @@ export const COPY = {
   },
   keptEstimate: (dur: string) =>
     `You kept this at ${dur} after declining an update.`,
-
-  /**
-   * The one entry that is not client work. The cohort follows whatever the
-   * user picked in onboarding, so this reads correctly for a UI/UX designer or
-   * a frontend developer too.
-   */
-  assignmentNote: (over: number, cohort: string) => [
-    `You're running ${over}% over.`,
-    `Consistent with ${cohort.toLowerCase()}. And, apparently, with product managers.`,
-  ],
 
   /*
    * The details view. An unaccepted suggestion has to justify its number
@@ -929,7 +875,9 @@ export function estimateFor(
     verb = `${cohort.specific} usually take`;
   }
 
-  const range = `${dur} ± ${pct}%`;
+  /* No space after the ±: it is a modifier on the number, not an operator
+   * between two of them, and the lane is too narrow to spend 3px on. */
+  const range = `${dur} ±${pct}%`;
 
   return {
     minutes,
