@@ -1615,11 +1615,6 @@ a {
   pointer-events: none;
 }
 
-.ob-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.75);
-  cursor: pointer;
-}
-
 .ob-choices {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -112,7 +112,6 @@ export type Profile = {
   clientType: string;
   projectName: string;
   clientName: string;
-  deadline: string;
 };
 
 /*
@@ -217,8 +216,6 @@ export const DEFAULT_PROFILE: Profile = {
   clientType: "SMBs",
   projectName: PROJECT.name,
   clientName: PROJECT.client,
-  // The week is pinned to W36 2026 (Mon 31 Aug – Sun 6 Sep).
-  deadline: "2026-09-06",
 };
 
 /**

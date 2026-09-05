@@ -277,16 +277,6 @@ export default function Onboarding({ onFinish }: Props) {
                     placeholder="Nordvik Coffee"
                   />
                 </label>
-
-                <label className="ob-field">
-                  <span className="ob-label">Deadline</span>
-                  <input
-                    className="ob-input"
-                    type="date"
-                    value={profile.deadline}
-                    onChange={(e) => set("deadline", e.target.value)}
-                  />
-                </label>
               </>
             )}
           </>
