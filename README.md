@@ -105,6 +105,12 @@ Personalisation triggers on the **number of completed entries**, not elapsed
 days. The UI says so out loud on every notification — `2 of 3 design reviews
 logged` — because a user who is not told will assume it was time passing.
 
+Toggl's **Get started** checklist in the sidebar tracks the same three beats, so
+there is somewhere to look that says what to do next without a tour or a
+tooltip. Items strike through as they are met — review the plan, log something,
+log enough for the system to learn — and the panel folds itself away when the
+third one completes, because that is the end of the demo.
+
 **Restart demo** in the toolbar replays the whole thing from the first question.
 
 ---
@@ -132,6 +138,7 @@ a stock Next.js App Router app — no config needed.
 | `components/timer/EntryDetails.tsx` | Details panel: times, and why the number is what it is |
 | `components/timer/NotificationDrawer.tsx` | The bell drawer, where the progression speaks |
 | `components/timer/Onboarding.tsx` | Toggl's intent screen plus the three questions |
+| `components/timer/GetStarted.tsx` | The sidebar checklist |
 | `components/timer/AskToggl.tsx` | The Ask Toggl side panel |
 | `components/timer/session.ts` | Module-scope state, and the seed onboarding hands over |
 | `components/timer/layout.ts` | Minutes → pixels, and within-lane overlap |

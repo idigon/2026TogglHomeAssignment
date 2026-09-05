@@ -2363,3 +2363,116 @@ a {
   font-weight: 700;
   letter-spacing: 0.3px;
 }
+
+/* ===========================================================================
+ * Get started
+ *
+ * Toggl's own onboarding checklist, in the sidebar above the footer. Measured:
+ * 184px panel on #1c1a1c behind a hairline, 8px radius, 12px type throughout.
+ * =========================================================================*/
+
+.gs {
+  margin: 0 0 8px;
+  border-radius: var(--radius);
+  border: var(--hairline) solid var(--line);
+  background: var(--content-bg);
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.gs-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  color: var(--text);
+}
+
+.gs-head:hover {
+  background: #221f22;
+}
+
+.gs-rocket {
+  color: var(--billable);
+  flex: 0 0 auto;
+}
+
+.gs-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gs-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.gs-head svg:last-child {
+  color: var(--text-muted);
+  flex: 0 0 auto;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gs-flip {
+  transform: rotate(180deg);
+}
+
+.gs-list {
+  margin: 0;
+  padding: 0 6px 6px;
+  list-style: none;
+}
+
+.gs-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px;
+}
+
+.gs-mark {
+  display: grid;
+  place-items: center;
+  height: 16px;
+  flex: 0 0 auto;
+  color: var(--control-line);
+}
+
+.gs-item.done .gs-mark {
+  color: var(--under);
+}
+
+.gs-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.gs-label {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+/* Struck through and stepped back once met, so the remaining work is what
+ * stands out rather than the finished work. */
+.gs-item.done .gs-label {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.gs-sub {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--text-muted);
+}
+
+.gs-item.done .gs-sub {
+  opacity: 0.6;
+}

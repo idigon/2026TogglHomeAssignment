@@ -66,6 +66,8 @@ type Props = {
   onToggleNotifications?: () => void;
   /** Opens the Ask Toggl panel. Absent on routes that do not have one. */
   onAskToggl?: () => void;
+  /** The Get started checklist. Absent on routes that have no plan to track. */
+  checklist?: React.ReactNode;
 };
 
 /**
@@ -79,6 +81,7 @@ export default function Sidebar({
   notificationsOpen = false,
   onToggleNotifications,
   onAskToggl,
+  checklist,
 }: Props) {
   /*
    * Collapsing keeps the 48px icon rail and slides the 200px nav column out
@@ -160,6 +163,8 @@ export default function Sidebar({
         </button>
 
         <div className="nav-spacer" />
+
+        {checklist}
 
         <button className="footer-item">
           <Upgrade className="upgrade-icon" />

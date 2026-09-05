@@ -38,11 +38,13 @@ import {
 import type { Profile, TaskType } from "@/lib/timerData";
 import Sidebar from "@/components/Sidebar";
 import AskToggl from "./AskToggl";
+import GetStarted from "./GetStarted";
 import NotificationDrawer from "./NotificationDrawer";
 import { clearSession, loadSession, saveSession } from "./session";
 import type { NotificationFilter } from "./NotificationDrawer";
 import Onboarding from "./Onboarding";
 import WeekGrid from "./WeekGrid";
+import type { ChecklistStep } from "./GetStarted";
 import type { AppNotification, Entry, EntryStatus, Lane } from "./types";
 
 /**
@@ -111,6 +113,9 @@ export default function TimerView() {
   /** Key of the entry whose details panel is open. */
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [askOpen, setAskOpen] = useState(false);
+  const [checklistCollapsed, setChecklistCollapsed] = useState(false);
+  /** So the auto-collapse at the end fires once, not on every later render. */
+  const [checklistSettled, setChecklistSettled] = useState(false);
 
   // Snapshot on every change, so leaving and coming back resumes rather than restarts.
   useEffect(() => {
@@ -398,6 +403,37 @@ export default function TimerView() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  /*
+   * The three things worth doing, in order. Each is derived from the same state
+   * the rest of the view runs on, so nothing has to be told when a step is met.
+   */
+  const planAccepted =
+    hasPlan && entries.length > 0 && !entries.some((e) => e.status === "suggested");
+  const hasLogged = logOrder.length > 0;
+  const learned = notifications.some((n) => n.kind === "personal");
+
+  const checklist: ChecklistStep[] = [
+    { label: "Review and adjust the suggested plan", done: planAccepted },
+    {
+      label: "Start logging time",
+      sub: "Play on any planned block",
+      done: hasLogged,
+    },
+    {
+      label: "Continue logging time so we learn from your behavior",
+      sub: `Takes ${LEARNING.personalThreshold} of a kind`,
+      done: learned,
+    },
+  ];
+
+  /* The last step is the end of the demo, so the panel folds itself away. */
+  useEffect(() => {
+    if (learned && !checklistSettled) {
+      setChecklistCollapsed(true);
+      setChecklistSettled(true);
+    }
+  }, [learned, checklistSettled]);
+
   const accept = useCallback((id: string) => {
     setStatuses((prev) => ({ ...prev, [id]: "planned" }));
   }, []);
@@ -508,6 +544,8 @@ export default function TimerView() {
     setReadIds([]);
     setDrawerOpen(false);
     setNotifFilter("Unread");
+    setChecklistCollapsed(false);
+    setChecklistSettled(false);
     setRejected([]);
     setPlanEdits({});
     setResolvedChanges({});
@@ -538,6 +576,15 @@ export default function TimerView() {
         notificationsOpen={drawerOpen}
         onToggleNotifications={() => setDrawerOpen((v) => !v)}
         onAskToggl={() => setAskOpen(true)}
+        checklist={
+          hasPlan ? (
+            <GetStarted
+              steps={checklist}
+              collapsed={checklistCollapsed}
+              onToggle={() => setChecklistCollapsed((v) => !v)}
+            />
+          ) : undefined
+        }
       />
 
       {/*
