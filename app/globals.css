@@ -2422,9 +2422,24 @@ a {
   transform: rotate(180deg);
 }
 
+/* Measured: 3px, full bleed, the muted accent behind the accent itself, with
+ * only the leading end rounded. */
+.gs-track {
+  height: 3px;
+  background: var(--nav-active-bg);
+}
+
+.gs-fill {
+  display: block;
+  height: 100%;
+  border-radius: 0 2px 2px 0;
+  background: var(--billable);
+  transition: width 0.3s ease;
+}
+
 .gs-list {
   margin: 0;
-  padding: 0 6px 6px;
+  padding: 6px 6px 6px;
   list-style: none;
 }
 

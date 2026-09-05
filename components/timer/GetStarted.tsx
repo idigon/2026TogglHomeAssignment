@@ -43,6 +43,14 @@ export default function GetStarted({ steps, collapsed, onToggle }: Props) {
         <ChevronDown size={14} className={collapsed ? undefined : "gs-flip"} />
       </button>
 
+      {/* Full-bleed progress under the header, visible in both states. */}
+      <div className="gs-track">
+        <span
+          className="gs-fill"
+          style={{ width: `${(done / steps.length) * 100}%` }}
+        />
+      </div>
+
       {!collapsed && (
         <ul className="gs-list" id="gs-list">
           {steps.map((step) => (
