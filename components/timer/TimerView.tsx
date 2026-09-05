@@ -23,6 +23,7 @@ import {
   GRID,
   LEARNING,
   PEER_BENCHMARKS,
+  PERSONAL_PEER_MINUTES,
   PERSONAL_TASK,
   PLAN,
   PROJECT,
@@ -287,8 +288,8 @@ export default function TimerView() {
               ? COPY.assignmentNote(
                   formatDuration(log.minutes),
                   cohortWords(profile).specific,
-                  formatDuration(estimate.minutes),
-                  Math.round(((estimate.minutes - log.minutes) / log.minutes) * 100),
+                  formatDuration(PERSONAL_PEER_MINUTES),
+                  Math.round(((PERSONAL_PEER_MINUTES - log.minutes) / log.minutes) * 100),
                 )
               : undefined,
         });

@@ -328,12 +328,14 @@ export const PEER_BENCHMARKS: Record<TaskType, Benchmark> = {
   },
 
   /*
-   * Not project work and not part of the model. Only the median is ever used —
-   * as the 8h the cohort would have spent, against the 6h actually logged. The
-   * panel suppresses cohort provenance for this task entirely, because there
-   * is no cohort behind a personal entry.
+   * Not project work and not part of the model. Only the median is ever used,
+   * as the plan — 6h, the same as the log, so this entry sits at zero variance
+   * and cannot be mistaken for one of the beats. What the cohort would have
+   * spent is PERSONAL_PEER_MINUTES, and it is only ever a sentence. The panel
+   * suppresses cohort provenance here entirely, because there is no cohort
+   * behind a personal entry.
    */
-  assignment: { median: 480, spread: 0.2, basis: "specialization", sampleSize: 0 },
+  assignment: { median: 360, spread: 0.2, basis: "specialization", sampleSize: 0 },
 };
 
 /* ---------------------------------------------------------------------------
@@ -548,8 +550,15 @@ export const PERSONAL_TASK: PlannedTask = {
   noteKind: "assignment",
 };
 
-/** Six hours, on the nose — against the 8h the peer cohort would have taken. */
+/** Planned six hours, logged six hours. */
 export const PERSONAL_TASK_LOG = { minutes: 6 * 60 };
+
+/**
+ * What the peer cohort would have spent on it. Quoted in the panel note and
+ * nowhere else — it is not a benchmark, it does not touch an estimate, and no
+ * block is ever drawn from it.
+ */
+export const PERSONAL_PEER_MINUTES = 8 * 60;
 
 /* ---------------------------------------------------------------------------
  * 6a. How long this user ACTUALLY takes
@@ -757,6 +766,7 @@ export const COPY = {
   assignmentNote: (dur: string, cohort: string, peer: string, longer: number) => [
     `${dur}, sharp.`,
     `${cohort} would have taken ${peer} — ${longer}% longer.`,
+    `Product managers, longer still.`,
   ],
 
   /*
