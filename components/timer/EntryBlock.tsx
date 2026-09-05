@@ -9,6 +9,7 @@ import {
   Tag,
   X,
 } from "@/components/Icons";
+import type { CSSProperties } from "react";
 import { formatClock, formatDuration } from "@/lib/timerData";
 import { heightFor, topFor } from "./layout";
 import type { Entry, Lane } from "./types";
@@ -64,32 +65,49 @@ export default function EntryBlock({
   const trackable = status === "planned" && !hasLog;
 
   /*
-   * What fits, in priority order. On a suggestion the estimate outranks the
-   * project line — every task here belongs to the same project, and the whole
-   * point of the block is the number and where it came from. The lane is only
-   * ~110px wide, so short blocks also clamp the title to one line rather than
-   * letting it push the range out.
+   * What fits, in priority order, spending the block's height line by line.
+   * Nothing is shown that there is no room for, so the block never has to clip
+   * a line in half; on a suggestion the estimate outranks the project line,
+   * because every task here belongs to the same project and the whole point of
+   * the block is the number and where it came from.
+   *
+   * The costs are the rendered heights of each row, in px: one title line, the
+   * range, and the basis and note at the two lines they are clamped to.
    */
-  const tight = height < 78;
-  const showMeta = !suggested && height >= 44;
-  const showRange = suggested && height >= 50;
-  const showBasis = suggested && height >= 72;
-  const showNote = suggested && height >= 100;
+  let room = height - 4 /* padding */ - 17 /* footer */ - 16 /* one title line */;
+  const spend = (cost: number, wanted: boolean) => {
+    if (!wanted || room < cost) return false;
+    room -= cost;
+    return true;
+  };
+
+  const showRange = spend(16, suggested);
+  const showBasis = spend(27, showRange);
+  const showNote = spend(30, showBasis && Boolean(estimate.note));
+  const showMeta = spend(15, !suggested);
+
+  /* Whatever is left over is the title's, and clamping to it ends the last
+   * line in an ellipsis — the lane is barely 100px wide, and most of these
+   * titles are longer than it. The full title is in the tooltip. */
+  const titleLines = Math.min(4, 1 + Math.floor(room / 16));
 
   const shownMinutes = logged ? (entry.actual ?? 0) : estimate.minutes;
 
   return (
     <div
-      className={`tv-block tv-${status}${tight ? " tight" : ""}${open ? " open" : ""}${
+      className={`tv-block tv-${status}${open ? " open" : ""}${
         entry.changed ? " changed" : ""
       }${task.chip ? ` p-${task.chip.color}` : ""}`}
       onClick={() => onOpen(open ? null : entry.key)}
-      style={{
-        top: topFor(entry.start, hourHeight),
-        height: Math.max(height - 2, 16),
-        left: `${(slot / slots) * 100}%`,
-        width: `calc(${(1 / slots) * 100}% - 10px)`,
-      }}
+      style={
+        {
+          top: topFor(entry.start, hourHeight),
+          height: Math.max(height - 2, 16),
+          left: `${(slot / slots) * 100}%`,
+          width: `calc(${(1 / slots) * 100}% - 8px)`,
+          "--title-lines": titleLines,
+        } as CSSProperties
+      }
     >
       {/* The estimate moved because of the last log. Shown here, on the block
        * that changed, rather than announced somewhere else on the page. */}
@@ -100,7 +118,9 @@ export default function EntryBlock({
       )}
 
       <div className="tv-block-body">
-        <div className="tv-block-title">{task.title}</div>
+        <div className="tv-block-title" title={task.title}>
+          {task.title}
+        </div>
 
         {showMeta && (
           <div className="tv-block-meta">

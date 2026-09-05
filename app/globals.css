@@ -31,8 +31,8 @@
   --project-green-text: #c6ece5;
   --project-orange: #ee7a63;
   --project-orange-text: #f3c3b9;
-  --project-grey: #8f8a8d;
-  --project-grey-text: #d8d5d7;
+  --project-grey: #464245;
+  --project-grey-text: #cfcbcd;
   --project-blue: #9494f9;
   --project-blue-text: #cacafc;
 
@@ -1007,11 +1007,15 @@ a {
   background: #7d3316;
 }
 
-/* Grey is the quiet one: same lightness as the others, no hue, so a block on
- * it reads as an entry without asking to be read first. */
+/*
+ * Grey is the quiet one. It sits close to the canvas rather than matching the
+ * pastel fills, so the entry that changes nothing carries the least ink on the
+ * week — which means light text on it, not the near-black the fills take.
+ */
 .tv-block.p-grey {
   background: var(--project-grey);
-  border-color: #5e5a5c;
+  border-color: #575356;
+  color: var(--project-grey-text);
 }
 
 .ed-pill.project.p-grey {
@@ -1047,18 +1051,21 @@ a {
   overflow: hidden;
 }
 
+/*
+ * Titles are longer than the lane is wide, so they always truncate. Clamping
+ * to the line budget the block hands down ends them in an ellipsis on a whole
+ * word; the full title is in the tooltip and in the details panel.
+ */
 .tv-block-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--title-lines, 2);
+  line-clamp: var(--title-lines, 2);
+  overflow: hidden;
+  overflow-wrap: break-word;
   font-size: 12px;
   font-weight: 600;
   line-height: 16px;
-  overflow: hidden;
-}
-
-/* Short blocks keep the title to one line so the estimate still fits. */
-.tv-block.tight .tv-block-title {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
 }
 
 .tv-block-meta {
@@ -1151,6 +1158,18 @@ a {
   font-weight: 600;
   color: #ffffff;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tv-est-basis,
+.tv-est-note {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: break-word;
 }
 
 .tv-est-basis {

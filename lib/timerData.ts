@@ -934,7 +934,9 @@ export function estimateFor(
     verb = `${cohort.specific} usually take`;
   }
 
-  const range = `${dur} ± ${pct}%`;
+  /* No space after the ±: it is a modifier on the number, not an operator
+   * between two of them, and the lane is too narrow to spend 3px on. */
+  const range = `${dur} ±${pct}%`;
 
   return {
     minutes,

@@ -61,7 +61,7 @@ loading state, no "setting things up".
 Every suggestion shows an estimate as a **range**, never a bare number, and says
 where it came from. Where the brand identity sample is too thin, the number
 degrades to the parent Design cohort and admits it: *"Designers generally take
-1h 45m ± 30% · Not much brand identity data yet."*
+1h 45m ±30% · Not much brand identity data yet."*
 
 **3. Accept, adjust or reject.** Per task from the block, or all at once from the
 pill. Adjusting opens the details panel, where the estimate has to justify
