@@ -1,5 +1,11 @@
-import type { EntryStatus } from "./types";
+import {
+  DEFAULT_PROFILE,
+  GRID,
+  PERSONAL_TASK,
+  PERSONAL_TASK_LOG,
+} from "@/lib/timerData";
 import type { Profile } from "@/lib/timerData";
+import type { EntryStatus } from "./types";
 
 /**
  * Where the prototype's state lives between route changes.
@@ -39,6 +45,40 @@ export function saveSession(next: Session) {
 
 export function clearSession() {
   snapshot = null;
+}
+
+/**
+ * Seed a run from the onboarding answers, or from a skip.
+ *
+ * Onboarding lives on its own route now, so it has to hand the calendar a
+ * complete starting state rather than calling into it. A skip produces the
+ * same shape with nothing in it — no cohort, so nothing to suggest.
+ */
+export function beginSession(profile: Profile | null): Session {
+  const next: Session = {
+    phase: profile ? "week" : "empty",
+    profile: profile ?? DEFAULT_PROFILE,
+    hourHeight: GRID.hourHeight,
+    statuses: {},
+    logs: {},
+    logOrder: [],
+    readIds: [],
+    rejected: [],
+    planEdits: {},
+    resolvedChanges: {},
+  };
+
+  if (profile) {
+    /*
+     * The one entry that arrives already logged. Seeded here rather than added
+     * to logOrder, so it raises no notification and feeds no benchmark.
+     */
+    next.statuses[PERSONAL_TASK.id] = "planned";
+    next.logs[PERSONAL_TASK.id] = PERSONAL_TASK_LOG;
+  }
+
+  snapshot = next;
+  return next;
 }
 
 /** Sidebar collapse, kept here for the same reason: it should not reset on nav. */

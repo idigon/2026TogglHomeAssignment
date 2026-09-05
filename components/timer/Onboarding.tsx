@@ -8,10 +8,18 @@ import {
   ChevronLeft,
   Clock,
   Folder,
+  GoogleCalendarMark,
+  Info,
+  OutlookMark,
   Power,
   Tasks,
 } from "@/components/Icons";
-import { DEFAULT_PROFILE, ONBOARDING, ONBOARDING_INTENTS } from "@/lib/timerData";
+import {
+  DEFAULT_PROFILE,
+  ONBOARDING,
+  ONBOARDING_CONNECTORS,
+  ONBOARDING_INTENTS,
+} from "@/lib/timerData";
 import type { Profile } from "@/lib/timerData";
 
 type Props = {
@@ -23,8 +31,16 @@ type Props = {
   onFinish: (profile: Profile | null) => void;
 };
 
-/** Four screens: Toggl's own intent question, then the three that feed the model. */
-const STEPS = 4;
+/**
+ * Five screens: Toggl's two — what you will use it for, and connecting a
+ * calendar — then the three that feed the estimates.
+ */
+const STEPS = 5;
+
+const CONNECTOR_MARKS: Record<string, React.ReactNode> = {
+  google: <GoogleCalendarMark size={26} />,
+  outlook: <OutlookMark size={26} />,
+};
 
 const INTENT_ICONS: Record<string, React.ReactNode> = {
   benchmarking: <BarChart size={18} />,
@@ -65,10 +81,12 @@ export default function Onboarding({ onFinish }: Props) {
     step === 0
       ? Boolean(chosen?.supported)
       : step === 1
-        ? Boolean(profile.discipline && profile.specialization)
+        ? true // the calendar step is skippable by design; nothing to answer
         : step === 2
-          ? Boolean(profile.clientType)
-          : Boolean(profile.projectName.trim() && profile.clientName.trim());
+          ? Boolean(profile.discipline && profile.specialization)
+          : step === 3
+            ? Boolean(profile.clientType)
+            : Boolean(profile.projectName.trim() && profile.clientName.trim());
 
   return (
     <div className="ob-page">
@@ -82,9 +100,12 @@ export default function Onboarding({ onFinish }: Props) {
           ))}
         </div>
 
-        <span className="ob-mark" aria-hidden>
-          <Power size={26} />
-        </span>
+        {/* The mark only appears on the welcome, as in the live flow. */}
+        {step === 0 && (
+          <span className="ob-mark" aria-hidden>
+            <Power size={26} />
+          </span>
+        )}
 
         {step === 0 ? (
           <>
@@ -124,6 +145,40 @@ export default function Onboarding({ onFinish }: Props) {
             </button>
 
             {step === 1 && (
+              <>
+                <h2 className="ob-title">{ONBOARDING.calendarTitle}</h2>
+                <p className="ob-sub">{ONBOARDING.calendarSub}</p>
+
+                <div className="ob-intents">
+                  {ONBOARDING_CONNECTORS.map((c) => (
+                    <div key={c.id} className="ob-connector">
+                      <span className="ob-connector-mark" aria-hidden>
+                        {CONNECTOR_MARKS[c.id]}
+                      </span>
+                      <span className="ob-intent-text">
+                        <span className="ob-intent-title">{c.name}</span>
+                        <span className="ob-intent-desc">{c.description}</span>
+                      </span>
+                      {/* Calendar integrations are out of scope, so this does
+                        * nothing and says so rather than pretending. */}
+                      <button className="ob-connect" disabled>
+                        Connect
+                      </button>
+                    </div>
+                  ))}
+
+                  <div className="ob-connector ob-autotrack">
+                    <span className="ob-intent-title">{ONBOARDING.autoTrack}</span>
+                    <Info size={13} className="ob-info" />
+                    <span className="ob-switch" aria-hidden />
+                  </div>
+                </div>
+
+                <p className="ob-note">{ONBOARDING.connectorsNote}</p>
+              </>
+            )}
+
+            {step === 2 && (
               <>
                 <h2 className="ob-title">What kind of work do you do?</h2>
                 <p className="ob-sub">
@@ -174,7 +229,7 @@ export default function Onboarding({ onFinish }: Props) {
               </>
             )}
 
-            {step === 2 && (
+            {step === 3 && (
               <>
                 <h2 className="ob-title">Who do you usually work for?</h2>
                 <p className="ob-sub">
@@ -196,7 +251,7 @@ export default function Onboarding({ onFinish }: Props) {
               </>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <>
                 <h2 className="ob-title">What are you starting on?</h2>
                 <p className="ob-sub">

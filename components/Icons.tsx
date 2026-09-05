@@ -610,6 +610,38 @@ export const Pencil = ({ size = 16, className }: IconProps) => (
   </svg>
 );
 
+/* Connector marks for the onboarding calendar step. Simplified stand-ins, not
+ * the vendors' official artwork. */
+
+export const GoogleCalendarMark = ({ size = 26, className }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" className={className}>
+    <rect x="1" y="2" width="22" height="20" rx="3" fill="#ffffff" />
+    <path d="M1 5a3 3 0 0 1 3-3h16a3 3 0 0 1 3 3v2H1z" fill="#4285f4" />
+    <rect x="1" y="2" width="22" height="20" rx="3" fill="none" stroke="#dadce0" />
+    <text
+      x="12"
+      y="17.5"
+      textAnchor="middle"
+      fontSize="10"
+      fontWeight="700"
+      fill="#4285f4"
+      fontFamily="Inter, system-ui, sans-serif"
+    >
+      31
+    </text>
+  </svg>
+);
+
+export const OutlookMark = ({ size = 26, className }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" className={className}>
+    <rect x="1" y="3" width="22" height="18" rx="3" fill="#0f6cbd" />
+    <rect x="11" y="6" width="11" height="12" rx="1.5" fill="#ffffff" opacity="0.92" />
+    <path d="M11 7.5 16.5 12 22 7.5" fill="none" stroke="#0f6cbd" strokeWidth="1.4" />
+    <ellipse cx="6.6" cy="12" rx="3.6" ry="4.2" fill="#ffffff" />
+    <ellipse cx="6.6" cy="12" rx="1.7" ry="2.2" fill="#0f6cbd" />
+  </svg>
+);
+
 export const Restart = ({ size = 16, className }: IconProps) => (
   <svg {...line(size)} className={className}>
     <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CalendarSm,
   ChevronDown,
@@ -23,7 +24,6 @@ import {
   LEARNING,
   PEER_BENCHMARKS,
   PERSONAL_TASK,
-  PERSONAL_TASK_LOG,
   PLAN,
   PROJECT,
   TASK_TYPE_LABELS,
@@ -68,6 +68,7 @@ type LogRecord = { minutes: number; start?: number };
 type Phase = "onboarding" | "empty" | "week";
 
 export default function TimerView() {
+  const router = useRouter();
   // Resume whatever the user had going before they navigated away.
   const prior = loadSession();
 
@@ -139,18 +140,24 @@ export default function TimerView() {
   ]);
 
   const hasPlan = phase === "week";
+  const needsOnboarding = phase === "onboarding";
+
+  /* No answers yet: onboarding owns its own route. */
+  useEffect(() => {
+    if (needsOnboarding) router.replace("/onboarding");
+  }, [needsOnboarding, router]);
 
   /* Ctrl/Cmd+K, but never over the onboarding questions. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        if (phase !== "onboarding") setAskOpen((v) => !v);
+        if (!needsOnboarding) setAskOpen((v) => !v);
       }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [phase]);
+  }, [needsOnboarding]);
 
   const project = {
     name: profile.projectName || PROJECT.name,
@@ -391,20 +398,6 @@ export default function TimerView() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  /** Q3 answered — the plan lands. Skip — nothing lands, and that is the point. */
-  const finishOnboarding = useCallback((answers: Profile | null) => {
-    if (answers) {
-      setProfile(answers);
-      setPhase("week");
-      // Already accepted and already logged. Not added to logOrder, so it
-      // raises no notification and touches no benchmark.
-      setStatuses((prev) => ({ ...prev, [PERSONAL_TASK.id]: "planned" }));
-      setLogs((prev) => ({ ...prev, [PERSONAL_TASK.id]: PERSONAL_TASK_LOG }));
-    } else {
-      setPhase("empty");
-    }
-  }, []);
-
   const accept = useCallback((id: string) => {
     setStatuses((prev) => ({ ...prev, [id]: "planned" }));
   }, []);
@@ -506,6 +499,7 @@ export default function TimerView() {
 
   const restart = useCallback(() => {
     clearSession();
+    router.push("/onboarding");
     setPhase("onboarding");
     setProfile(DEFAULT_PROFILE);
     setStatuses({});
@@ -519,7 +513,7 @@ export default function TimerView() {
     setResolvedChanges({});
     setOpenKey(null);
     setHourHeight(GRID.hourHeight);
-  }, []);
+  }, [router]);
 
   const zoom = useCallback((delta: number) => {
     setHourHeight((h) =>
@@ -533,6 +527,9 @@ export default function TimerView() {
   // Both summary bars share a scale, so their lengths are comparable.
   const barMax = Math.max(loggedTotal, plannedTotal, 1);
 
+  // Nothing to show while the redirect to /onboarding is in flight.
+  if (needsOnboarding) return null;
+
   return (
     <div className="app app-fixed">
       <Sidebar
@@ -540,7 +537,7 @@ export default function TimerView() {
         unread={unreadCount}
         notificationsOpen={drawerOpen}
         onToggleNotifications={() => setDrawerOpen((v) => !v)}
-        onAskToggl={phase === "onboarding" ? undefined : () => setAskOpen(true)}
+        onAskToggl={() => setAskOpen(true)}
       />
 
       {/*
@@ -697,7 +694,6 @@ export default function TimerView() {
         onAcceptAllChanges={acceptAllChanges}
       />
 
-      {phase === "onboarding" && <Onboarding onFinish={finishOnboarding} />}
       </main>
 
       <AskToggl open={askOpen} onClose={() => setAskOpen(false)} />

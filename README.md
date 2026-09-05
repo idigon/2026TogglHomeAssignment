@@ -40,8 +40,13 @@ list. The other three stay, and stay selectable, but disable Continue: leaving
 them out would hide that this is one option among several, and greying them out
 would hide what they are.
 
-Choosing it continues into three questions: discipline + specialization
-(dependent selects), typical client type, and the project you are starting.
+Choosing it continues through Toggl's calendar step — reproduced, with both
+**Connect** buttons disabled, since calendar integrations are out of scope —
+and then into three questions: discipline + specialization (dependent selects),
+typical client type, and the project you are starting.
+
+The whole flow lives at `/onboarding`, on its own route before the app shell,
+as Toggl's does. `/calendar` bounces there until it has been answered.
 
 Q1 and Q2 are the entire reason Toggl can say anything on day one: they pick a
 peer cohort. Each question says what it buys rather than just asking. **Skip** is
@@ -120,6 +125,7 @@ a stock Next.js App Router app — no config needed.
 | --- | --- |
 | `lib/timerData.ts` | **The tuning file.** Every mock value and every estimate number. |
 | `app/calendar/page.tsx` | The one real view |
+| `app/onboarding/page.tsx` | The onboarding route; hands the calendar a seeded session |
 | `components/timer/TimerView.tsx` | All state, and the derivation of entries and notifications |
 | `components/timer/WeekGrid.tsx` | Day headers, all-day row, the two-lane grid |
 | `components/timer/EntryBlock.tsx` | One block, in either lane |
@@ -127,7 +133,7 @@ a stock Next.js App Router app — no config needed.
 | `components/timer/NotificationDrawer.tsx` | The bell drawer, where the progression speaks |
 | `components/timer/Onboarding.tsx` | Toggl's intent screen plus the three questions |
 | `components/timer/AskToggl.tsx` | The Ask Toggl side panel |
-| `components/timer/session.ts` | Module-scope state, so navigating away does not restart the demo |
+| `components/timer/session.ts` | Module-scope state, and the seed onboarding hands over |
 | `components/timer/layout.ts` | Minutes → pixels, and within-lane overlap |
 | `components/timer/types.ts` | Entry, lane, beat, notification |
 | `components/Sidebar.tsx` | Toggl shell nav, collapse, and the notification bell |

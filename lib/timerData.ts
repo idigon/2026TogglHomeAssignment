@@ -155,12 +155,35 @@ export const ONBOARDING_INTENTS: {
   },
 ];
 
+/*
+ * Step two of Toggl's onboarding, reproduced. Neither connector does anything
+ * here — calendar integrations are explicitly out of scope — so both Connect
+ * buttons are disabled and the screen says why.
+ */
+export const ONBOARDING_CONNECTORS = [
+  {
+    id: "google",
+    name: "Google Calendar",
+    description: "Import your meetings so they turn into tracked time",
+  },
+  {
+    id: "outlook",
+    name: "Microsoft Outlook",
+    description: "Import your meetings so they turn into tracked time",
+  },
+];
+
 export const ONBOARDING = {
   welcome: "Welcome to Toggl 2.0",
   intentQuestion: "What will you mainly use Toggl for?",
   intentSub: "We'll tailor your first experience to help you get there.",
   /** Shown under the list when an option this prototype does not build is picked. */
   unsupported: "Not part of this prototype. Pick Smart benchmarking to continue.",
+  calendarTitle: "Log time from your meetings and events",
+  calendarSub:
+    "Connect your calendar and your meetings and events are ready to track",
+  autoTrack: "Auto-track calendar events",
+  connectorsNote: "Calendar connections are not part of this prototype.",
   disciplines: [
     {
       label: "Design",

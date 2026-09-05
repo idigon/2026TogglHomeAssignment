@@ -1281,7 +1281,7 @@ a {
   display: flex;
   justify-content: center;
   gap: 6px;
-  margin-bottom: 26px;
+  margin-bottom: 28px;
 }
 
 .ob-dot {
@@ -1401,6 +1401,76 @@ a {
   color: var(--billable);
 }
 
+/* ---------- the calendar step ---------- */
+
+.ob-connector {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius);
+  border: var(--hairline) solid var(--control-line);
+  background: var(--content-bg);
+  text-align: left;
+}
+
+.ob-connector-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+}
+
+.ob-connect {
+  margin-left: auto;
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  background: var(--billable);
+  color: var(--entry-ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Out of scope, so it never lights up. */
+.ob-connect:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ob-autotrack {
+  gap: 8px;
+}
+
+.ob-info {
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+/* Decorative: the real screen has this on, and nothing here reads it. */
+.ob-switch {
+  position: relative;
+  margin-left: auto;
+  width: 34px;
+  height: 20px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--billable);
+}
+
+.ob-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
 /* Says why Continue went dead, rather than leaving the user to work it out. */
 .ob-note {
   margin: 14px 0 0;
@@ -1420,14 +1490,15 @@ a {
   gap: 4px;
   padding: 4px 8px 4px 4px;
   border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-transform: uppercase;
+  color: var(--text);
 }
 
 .ob-back:hover {
   background: #262426;
-  color: var(--text);
 }
 
 .ob-field {
