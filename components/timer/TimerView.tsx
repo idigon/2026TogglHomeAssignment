@@ -283,10 +283,12 @@ export default function TimerView() {
           // Against the plan, whatever the plan currently is.
           variance: log.minutes - estimate.minutes,
           panelNote:
-            task.noteKind === "assignment" && estimate.minutes > 0
+            task.noteKind === "assignment" && log.minutes > 0
               ? COPY.assignmentNote(
-                  Math.round(((log.minutes - estimate.minutes) / estimate.minutes) * 100),
+                  formatDuration(log.minutes),
                   cohortWords(profile).specific,
+                  formatDuration(estimate.minutes),
+                  Math.round(((estimate.minutes - log.minutes) / log.minutes) * 100),
                 )
               : undefined,
         });

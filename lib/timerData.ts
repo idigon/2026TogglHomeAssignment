@@ -328,11 +328,12 @@ export const PEER_BENCHMARKS: Record<TaskType, Benchmark> = {
   },
 
   /*
-   * Not project work and not part of the model. Only the median is ever used
-   * (as the 6h plan); the panel suppresses cohort provenance for this task
-   * entirely, because there is no cohort behind a personal entry.
+   * Not project work and not part of the model. Only the median is ever used —
+   * as the 8h the cohort would have spent, against the 6h actually logged. The
+   * panel suppresses cohort provenance for this task entirely, because there
+   * is no cohort behind a personal entry.
    */
-  assignment: { median: 360, spread: 0.2, basis: "specialization", sampleSize: 0 },
+  assignment: { median: 480, spread: 0.2, basis: "specialization", sampleSize: 0 },
 };
 
 /* ---------------------------------------------------------------------------
@@ -547,8 +548,8 @@ export const PERSONAL_TASK: PlannedTask = {
   noteKind: "assignment",
 };
 
-/** Estimated 6h, took 8h. */
-export const PERSONAL_TASK_LOG = { minutes: 8 * 60 };
+/** Six hours, on the nose — against the 8h the peer cohort would have taken. */
+export const PERSONAL_TASK_LOG = { minutes: 6 * 60 };
 
 /* ---------------------------------------------------------------------------
  * 6a. How long this user ACTUALLY takes
@@ -607,7 +608,7 @@ export const TRUE_PACE: Record<TaskType, { minutes: number; jitter: number }> = 
   // 90 — about right, but erratic.
   revisions: { minutes: 90, jitter: 30 },
   // Never sampled: PERSONAL_TASK carries its own fixed actual.
-  assignment: { minutes: 480, jitter: 0 },
+  assignment: { minutes: 360, jitter: 0 },
 };
 
 export const LOGGING = {
@@ -753,9 +754,9 @@ export const COPY = {
    * user picked in onboarding, so this reads correctly for a UI/UX designer or
    * a frontend developer too.
    */
-  assignmentNote: (over: number, cohort: string) => [
-    `You're running ${over}% over.`,
-    `Consistent with ${cohort.toLowerCase()}. And, apparently, with product managers.`,
+  assignmentNote: (dur: string, cohort: string, peer: string, longer: number) => [
+    `${dur}, sharp.`,
+    `${cohort} would have taken ${peer} — ${longer}% longer.`,
   ],
 
   /*
