@@ -115,7 +115,52 @@ export type Profile = {
   deadline: string;
 };
 
+/*
+ * Toggl's real onboarding opens by asking what you will mainly use it for.
+ * This prototype adds a fourth answer at the top of that list — the one this
+ * whole build is about — and leaves the other three in place, disabled, so the
+ * addition is legible as an addition rather than a replacement.
+ */
+export const ONBOARDING_INTENTS: {
+  id: string;
+  title: string;
+  description: string;
+  /** Only the first one leads anywhere here. */
+  supported: boolean;
+}[] = [
+  {
+    id: "benchmarking",
+    title: "Smart benchmarking",
+    description:
+      "Get realistic time estimates from day one, drawn from freelancers doing your kind of work — then watch them turn into your own numbers as you log.",
+    supported: true,
+  },
+  {
+    id: "time",
+    title: "See where time goes",
+    description: "Log hours and spot where they really go",
+    supported: false,
+  },
+  {
+    id: "plan",
+    title: "Plan and assign work",
+    description: "Map out tasks, then track against the plan",
+    supported: false,
+  },
+  {
+    id: "projects",
+    title: "Keep projects on track",
+    description: "Watch progress, profitability, and capacity in one place",
+    supported: false,
+  },
+];
+
 export const ONBOARDING = {
+  welcome: "Welcome to Toggl 2.0",
+  intentQuestion: "What will you mainly use Toggl for?",
+  intentSub: "We'll tailor your first experience to help you get there.",
+  /** Shown under the list when an option this prototype does not build is picked. */
+  unsupported: "Not part of this prototype. Pick Smart benchmarking to continue.",
   disciplines: [
     {
       label: "Design",

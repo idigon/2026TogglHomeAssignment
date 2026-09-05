@@ -32,14 +32,22 @@ heights, side by side, an inch apart.
 
 ## The flow
 
-**1. Three questions.** Discipline + specialization (dependent selects), typical
-client type, and the project you are starting. The calendar sits visible and
-empty behind them — you can see where you are about to land.
+**1. Onboarding, inside Toggl's own.** The live product opens by asking what you
+will mainly use Toggl for, and tailors the first experience to the answer —
+which is exactly the seam this feature belongs in. So rather than a separate
+overlay, **Smart benchmarking** is added as a fourth answer at the top of that
+list. The other three stay, and stay selectable, but disable Continue: leaving
+them out would hide that this is one option among several, and greying them out
+would hide what they are.
+
+Choosing it continues into three questions: discipline + specialization
+(dependent selects), typical client type, and the project you are starting.
 
 Q1 and Q2 are the entire reason Toggl can say anything on day one: they pick a
 peer cohort. Each question says what it buys rather than just asking. **Skip** is
 always live and equally weighted, and skipping lands on an **empty calendar** —
-no cohort, nothing to suggest. That is the honest outcome, and it is the point
+no cohort, nothing to suggest — with a notification in the drawer saying what
+that cost and how to undo it. That is the honest outcome, and it is the point
 of asking.
 
 **2. The week arrives.** Thirteen suggestions the instant Q3 is answered. No
@@ -117,7 +125,7 @@ a stock Next.js App Router app — no config needed.
 | `components/timer/EntryBlock.tsx` | One block, in either lane |
 | `components/timer/EntryDetails.tsx` | Details panel: times, and why the number is what it is |
 | `components/timer/NotificationDrawer.tsx` | The bell drawer, where the progression speaks |
-| `components/timer/Onboarding.tsx` | The three questions |
+| `components/timer/Onboarding.tsx` | Toggl's intent screen plus the three questions |
 | `components/timer/AskToggl.tsx` | The Ask Toggl side panel |
 | `components/timer/session.ts` | Module-scope state, so navigating away does not restart the demo |
 | `components/timer/layout.ts` | Minutes → pixels, and within-lane overlap |

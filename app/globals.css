@@ -1233,54 +1233,193 @@ a {
 /* ===========================================================================
  * Onboarding
  *
- * Three questions over the calendar. The scrim is only partly opaque and the
- * card is deliberately narrow: the empty week has to stay readable behind it,
- * because the payoff is watching that week fill the moment Q3 is answered.
+ * Toggl's real onboarding is a full page, not an overlay: a 600px card on a
+ * dark ground scattered with oversized Toggl marks. Measured off it — 45px/700
+ * welcome, 24px/700 question, 16px body, 56px/64px card padding, option rows
+ * at 8px radius that tint to accent-at-5% when chosen.
  * =========================================================================*/
 
-.ob-scrim {
-  position: absolute;
+/* Full viewport: Toggl's onboarding runs before the app shell, not inside it. */
+.ob-page {
+  position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: 60;
   display: grid;
   place-items: center;
-  padding: 24px;
-  background: rgba(10, 9, 10, 0.72);
-  backdrop-filter: blur(2px);
+  overflow: auto;
+  padding: 32px 24px;
+  background: #131213;
+}
+
+/*
+ * The decorative marks. Two rings and two discs, cropped by the viewport at
+ * the corners, in a barely-lighter ink so they read as texture rather than
+ * content.
+ */
+.ob-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 4% 6%, transparent 128px, #1a181a 129px, #1a181a 210px, transparent 211px),
+    radial-gradient(circle at 84% 46%, transparent 76px, #1a181a 77px, #1a181a 158px, transparent 159px),
+    radial-gradient(circle at 97% 92%, #1a181a 0 150px, transparent 151px),
+    radial-gradient(circle at 16% 96%, #1a181a 0 62px, transparent 63px);
 }
 
 .ob-card {
+  position: relative;
   width: 100%;
-  max-width: 460px;
-  padding: 22px 24px 20px;
-  border-radius: 14px;
-  border: var(--hairline) solid var(--control-line);
-  background: #1c1a1c;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  max-width: 600px;
+  padding: 44px 64px 36px;
+  border-radius: 16px;
+  background: var(--content-bg);
+  text-align: center;
 }
 
-.ob-top {
+.ob-dots {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 26px;
 }
 
-.ob-count {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.32px;
-  text-transform: uppercase;
+.ob-dot {
+  width: 26px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background 0.2s ease;
+}
+
+.ob-dot.on {
+  background: var(--billable);
+}
+
+.ob-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: var(--logo);
+  color: var(--sidebar-bg);
+}
+
+.ob-welcome {
+  margin: 0 0 18px;
+  font-size: 45px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.ob-title {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 30px;
+}
+
+.ob-sub {
+  margin: 0 auto 26px;
+  max-width: 44ch;
+  font-size: 16px;
+  line-height: 23px;
   color: var(--text-muted);
 }
 
-.ob-back {
+/* ---------- the intent list ---------- */
+
+.ob-intents {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.ob-intent {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  /* Buttons centre their text by default, which the card's centring would
+   * otherwise inherit straight through. */
+  text-align: left;
+  border-radius: var(--radius);
+  border: var(--hairline) solid var(--control-line);
+  background: var(--content-bg);
+}
+
+.ob-intent:hover {
+  background: #221f22;
+}
+
+/* Chosen: accent at 5% behind the badge border, as in the live app. */
+.ob-intent.on {
+  border-color: var(--badge-border);
+  background: rgba(194, 130, 185, 0.05);
+}
+
+.ob-intent-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: var(--radius);
+  background: #2a272a;
+  color: var(--billable);
+}
+
+.ob-intent.on .ob-intent-icon {
+  background: var(--nav-active-bg);
+}
+
+.ob-intent-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.ob-intent-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ob-intent-desc {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-muted);
+}
+
+.ob-intent-check {
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: var(--billable);
+}
+
+/* Says why Continue went dead, rather than leaving the user to work it out. */
+.ob-note {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---------- the three questions ---------- */
+
+/* Card corner, so it never lands on the same line as the centred heading. */
+.ob-back {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-left: -6px;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-muted);
@@ -1291,39 +1430,10 @@ a {
   color: var(--text);
 }
 
-.ob-dots {
-  display: flex;
-  gap: 5px;
-}
-
-.ob-dot {
-  width: 18px;
-  height: 3px;
-  border-radius: 999px;
-  background: var(--line);
-}
-
-.ob-dot.on {
-  background: var(--billable);
-}
-
-.ob-title {
-  margin: 0 0 8px;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.ob-sub {
-  margin: 0 0 20px;
-  font-size: 13px;
-  line-height: 19px;
-  color: var(--text-muted);
-}
-
 .ob-field {
   display: block;
   margin-bottom: 14px;
+  text-align: left;
 }
 
 .ob-label {
@@ -1337,7 +1447,7 @@ a {
 .ob-input,
 .ob-select select {
   width: 100%;
-  height: 38px;
+  height: 42px;
   padding: 0 12px;
   border-radius: var(--radius);
   border: var(--hairline) solid var(--control-line);
@@ -1367,12 +1477,11 @@ a {
 .ob-select svg {
   position: absolute;
   right: 11px;
-  top: 11px;
+  top: 13px;
   color: var(--text-muted);
   pointer-events: none;
 }
 
-/* Native date inputs render a bright picker glyph on a dark field. */
 .ob-input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.75);
   cursor: pointer;
@@ -1381,11 +1490,11 @@ a {
 .ob-choices {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 
 .ob-choice {
-  height: 44px;
+  height: 48px;
   border-radius: var(--radius);
   border: var(--hairline) solid var(--control-line);
   background: var(--content-bg);
@@ -1399,17 +1508,19 @@ a {
 }
 
 .ob-choice.on {
-  border-color: var(--billable);
-  background: var(--nav-active-bg);
+  border-color: var(--badge-border);
+  background: rgba(194, 130, 185, 0.05);
   color: var(--billable);
   font-weight: 600;
 }
+
+/* ---------- footer ---------- */
 
 .ob-foot {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 22px;
+  margin-top: 26px;
 }
 
 /* Skip is a peer of Continue, not a footnote — the friction has to be optional. */
@@ -1428,6 +1539,11 @@ a {
   color: var(--text);
 }
 
+.ob-cta {
+  min-width: 208px;
+  justify-content: center;
+}
+
 .btn-primary:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -1435,305 +1551,6 @@ a {
 
 .btn-primary:disabled:hover {
   background: var(--billable);
-}
-
-/* ===========================================================================
- * Entry details panel
- *
- * Measured off the live app: a 470px card on #1c1a1c with a hairline border,
- * 8px radius and a soft drop shadow, floating above the grid and anchored
- * beside the entry it belongs to.
- * =========================================================================*/
-
-.tv-details {
-  position: absolute;
-  z-index: 30;
-  width: 470px;
-  max-width: calc(100% - var(--gutter-w) - 16px);
-}
-
-.ed-card {
-  border: var(--hairline) solid var(--line);
-  border-radius: var(--radius);
-  background: var(--content-bg);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  padding: 14px 16px 12px;
-}
-
-.ed-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.ed-kind {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.32px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.ed-icon {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  color: var(--text-muted);
-  flex: 0 0 auto;
-}
-
-.ed-icon:hover {
-  background: #262426;
-  color: var(--text);
-}
-
-/* The one accent control in the header, as in the live app. */
-.ed-icon.accent {
-  border-radius: 50%;
-  background: var(--billable);
-  color: var(--entry-ink);
-  padding-left: 1px;
-}
-
-.ed-icon.accent:hover {
-  background: #cf95c7;
-  color: var(--entry-ink);
-}
-
-.ed-title {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 22px;
-  margin-bottom: 12px;
-}
-
-.ed-pills {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
-
-.ed-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: var(--radius);
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-/*
- * Task and Tags stay empty for the life of the prototype — nothing here ever
- * sets them, and a filled pill would imply data that does not exist. Only the
- * project is known, so only the project pill carries a value.
- */
-.ed-pill.empty {
-  border: var(--hairline) solid var(--control-line);
-  color: var(--text-muted);
-}
-
-.ed-pill.empty:hover {
-  background: #262426;
-}
-
-.ed-pill.empty kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 16px;
-  min-width: 16px;
-  padding: 0 4px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.08);
-  font: inherit;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.ed-pill.project {
-  background: #1e1e85;
-  color: var(--project-blue-text);
-}
-
-.ed-pill.project:hover {
-  background: #26269c;
-}
-
-.ed-pill.money {
-  padding: 0 12px;
-  border: var(--hairline) solid var(--control-line);
-  color: var(--text-muted);
-}
-
-.ed-pill.money.on {
-  border-color: transparent;
-  background: rgba(194, 130, 185, 0.15);
-  color: var(--billable);
-}
-
-/* ---------- start / end / duration ---------- */
-
-.ed-times {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.ed-date {
-  display: inline-flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: var(--radius);
-  background: #131213;
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.ed-time {
-  width: 78px;
-  height: 28px;
-  padding: 0 6px;
-  border: var(--hairline) solid transparent;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
-.ed-time:hover {
-  background: #262426;
-}
-
-.ed-time:focus {
-  outline: none;
-  border-color: var(--billable);
-  background: #262426;
-}
-
-.ed-time.dur {
-  width: 68px;
-}
-
-.ed-arrow {
-  color: var(--text-muted);
-}
-
-.ed-dur {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-left: auto;
-  color: var(--text-muted);
-}
-
-/* ---------- why this number ---------- */
-
-.ed-why {
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: var(--sugg-fill);
-  border: var(--hairline) solid var(--sugg-line);
-  margin-bottom: 12px;
-}
-
-.ed-why-head {
-  font-size: 13px;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 4px;
-}
-
-.ed-why-line {
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--sugg-text);
-}
-
-.ed-why-note {
-  margin-top: 5px;
-  font-size: 12px;
-  line-height: 17px;
-  color: #b1abe0;
-}
-
-.ed-why-degraded {
-  margin-top: 5px;
-  font-size: 12px;
-  line-height: 17px;
-  font-style: italic;
-  color: #b1abe0;
-}
-
-.ed-logged {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 12px;
-  font-size: 13px;
-}
-
-.ed-logged-label {
-  color: var(--text-muted);
-}
-
-.ed-logged-value {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-/* ---------- footer ---------- */
-
-.ed-foot {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.ed-reject {
-  height: 32px;
-  padding: 0 12px;
-  margin-left: -12px;
-  border-radius: var(--radius);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.ed-reject:hover {
-  background: #262426;
-  color: var(--over);
-}
-
-.ed-save kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 16px;
-  min-width: 16px;
-  border-radius: 3px;
-  background: rgba(0, 0, 0, 0.18);
-  font: inherit;
-  font-size: 12px;
-}
-
-/* The block whose panel is open keeps a visible tie to it. */
-.tv-block.open {
-  outline: 2px solid var(--billable);
-  outline-offset: 1px;
 }
 
 /* ===========================================================================
