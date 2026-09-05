@@ -1,11 +1,10 @@
 /*
- * Every value here was read off the live Toggl 2.0 Projects view with
- * getComputedStyle rather than eyeballed from a screenshot.
+ * Every value here was read off the live Toggl 2.0 app with getComputedStyle
+ * rather than eyeballed from a screenshot.
  *
  * The two facts that shape the whole file: the sidebar panel is pure black,
- * and the entire content area — page, toolbar, table header and rows alike —
- * is a single flat #1c1a1c. There is no "card on a darker canvas"; rows are
- * separated only by hairline rules.
+ * and the entire content area is a single flat #1c1a1c. There is no "card on a
+ * darker canvas"; regions are separated only by hairline rules.
  */
 
 :root {
@@ -41,6 +40,20 @@
    * still reads lighter than a full 1px rule — closer than 1px either way.
    */
   --hairline: 0.667px;
+
+  /*
+   * Timer view. The calendar needs a handful of values the Projects list never
+   * had — a dark ink for text sitting on a project-coloured block, and the
+   * suggestion palette. They live in the same block as everything else; this
+   * is not a second design system.
+   */
+  --entry-ink: #131213;
+  --entry-line: #2727a5;
+  --sugg-fill: #232055;
+  --sugg-line: #6f6ae0;
+  --sugg-text: #ded9ff;
+  --today-badge: rgba(194, 130, 185, 0.1);
+  --now-line: #f06292;
 
   --hover: rgba(255, 255, 255, 0.06);
   --rail-w: 48px;
@@ -96,21 +109,57 @@ a {
   padding-bottom: 24px;
 }
 
-/** The reports view keeps its original padded canvas. */
-.main-padded {
-  padding: 14px var(--pad) 24px;
-}
-
 /* ---------- sidebar ---------- */
 
+/*
+ * Collapsing narrows the panel to the icon rail and slides the nav column out
+ * to the left underneath it — measured off the live app: 0.15s on the same
+ * cubic-bezier, with the 48px rail staying put throughout.
+ */
 .side {
   width: calc(var(--rail-w) + var(--nav-w));
   flex: 0 0 calc(var(--rail-w) + var(--nav-w));
   display: flex;
+  /* Without this the flex item refuses to go below its content width (248px)
+   * and the collapsed state never narrows. */
+  min-width: 0;
+  overflow: hidden;
   background: var(--sidebar-bg);
+  transition:
+    width 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    flex-basis 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.side.collapsed {
+  width: var(--rail-w);
+  flex-basis: var(--rail-w);
+}
+
+/*
+ * Slide the nav the full width of the panel, not just its own width. At
+ * -200px its right edge lands exactly on the clip boundary, which left the
+ * things pinned to that edge — the starred markers, the trial badge, the
+ * Ctrl K hint — showing as slivers in the rail.
+ */
+.side.collapsed .nav {
+  transform: translateX(calc((var(--rail-w) + var(--nav-w)) * -1));
+}
+
+/* The toggle rides with the nav, so pin it back into the rail. */
+.side.collapsed .collapse {
+  transform: translateX(calc(var(--rail-w) + var(--nav-w)));
+}
+
+.collapse svg {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapse svg.flipped {
+  transform: scaleX(-1);
 }
 
 .rail {
+  position: relative;
   width: var(--rail-w);
   flex: 0 0 var(--rail-w);
   display: flex;
@@ -164,6 +213,7 @@ a {
   display: flex;
   flex-direction: column;
   padding: 12px 8px;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .org {
@@ -195,9 +245,11 @@ a {
 }
 
 .ask {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  text-align: left;
   height: 32px;
   margin: 9px 0 4px;
   padding: 0 8px;
@@ -205,6 +257,15 @@ a {
   background: rgba(255, 255, 255, 0.06);
   color: var(--text-muted);
   font-size: 13px;
+}
+
+.ask:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.ask:disabled {
+  cursor: default;
 }
 
 .ask kbd {
@@ -263,14 +324,25 @@ a {
   color: var(--text-muted);
 }
 
-/* Sits in the rail, but flows with the nav so it tracks the last nav item. */
+/*
+ * Sits in the rail, but flows with the nav so it tracks the last nav item.
+ *
+ * It has to be positioned: .rail is position:relative (it anchors the
+ * notification drawer), which makes the rail paint over this button and
+ * swallow its clicks. Before the button was aligned to the rail only the
+ * sliver poking out to the right of it was clickable — hence having to aim
+ * right of the icon — and once aligned it stopped responding entirely.
+ */
 .collapse {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   width: var(--rail-w);
   height: 32px;
-  margin: 6px 0 0 calc(var(--rail-w) * -1);
+  margin: 6px 0 0 calc((var(--rail-w) + 8px) * -1);
   color: var(--text-muted);
 }
 
@@ -322,25 +394,7 @@ a {
   color: var(--billable);
 }
 
-/* ---------- page header ---------- */
-
-.page-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 32px;
-  margin: 16px var(--pad);
-}
-
-.main-padded .page-head {
-  margin: 0 0 16px;
-}
-
-.page-title {
-  font-size: 20px;
-  font-weight: 600;
-  margin: 0;
-}
+/* ---------- buttons ---------- */
 
 .btn-primary {
   display: flex;
@@ -359,20 +413,7 @@ a {
   background: #cf95c7;
 }
 
-/* ---------- toolbar ---------- */
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 32px;
-  padding: 0 var(--pad);
-}
-
-.main-padded .toolbar {
-  padding: 0;
-  margin-bottom: 6px;
-}
+/* ---------- controls ---------- */
 
 /*
  * Controls sit on the same #1c1a1c as the page, so all that separates them is
@@ -433,554 +474,2001 @@ a {
   background: #262426;
 }
 
-.templates-btn {
+/* ===========================================================================
+ * Timer — week calendar
+ *
+ * The view is a fixed-height column: header, week nav and summary keep their
+ * natural height, and only the hourly grid scrolls. Everything below shares
+ * one row grid — a gutter plus seven equal day columns — so the day headers,
+ * the all-day band and the grid itself stay in register.
+ * =========================================================================*/
+
+.app-fixed {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-timer {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 0;
   position: relative;
 }
 
-.templates-btn .star-badge {
-  position: absolute;
-  top: 1px;
-  right: 2px;
-  color: var(--text);
+.tv-row {
+  display: grid;
+  grid-template-columns: var(--gutter-w) repeat(7, minmax(0, 1fr));
 }
 
-.filter-row {
-  height: 24px;
-  margin: 8px var(--pad) 17px;
+.tv-cal {
+  --gutter-w: 71px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ---------- running-timer header ---------- */
+
+.tv-head {
   display: flex;
   align-items: center;
+  gap: 12px;
+  padding: 14px var(--pad);
 }
 
-.filter-add {
+.tv-entry-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tv-head-right {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 24px;
-  padding: 0 8px;
-  margin-left: -8px;
-  border-radius: 4px;
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
+  flex: 0 0 auto;
 }
 
-.filter-add:hover {
+.tv-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  max-width: 280px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  border: var(--hairline) solid var(--control-line);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tv-pill:hover {
   background: #262426;
 }
 
-/* ---------- projects table ---------- */
-
-.projects {
-  overflow-x: auto;
+.tv-pill svg {
+  flex: 0 0 auto;
 }
 
-.ptable {
-  width: 100%;
-  min-width: 1180px;
-  table-layout: fixed;
-  border-collapse: collapse;
-}
-
-.ptable th,
-.ptable td {
-  height: 48px;
-  padding: 0 12px;
-  border-bottom: var(--hairline) solid var(--line);
-  text-align: left;
-  vertical-align: middle;
-}
-
-.ptable th {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.32px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.ptable td {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.ptable .col-check {
-  padding: 0 0 0 18px;
-}
-
-.th-inner {
-  display: flex;
+/* The empty-state glyph: Toggl renders @ / + / # as a small kbd-style chip. */
+.tv-pill kbd {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-}
-
-.th-inner.right {
-  justify-content: flex-end;
-}
-
-.th-inner.center {
   justify-content: center;
-}
-
-.th .sort,
-.sort {
-  color: var(--text-muted);
-  flex: 0 0 auto;
-}
-
-.check {
-  display: inline-flex;
+  height: 16px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-muted);
 }
 
-/* Row checkboxes only appear on hover, as in the live app. */
-.row-check {
-  opacity: 0;
-}
-
-.ptable tbody tr:hover .row-check {
-  opacity: 1;
-}
-
-.ptable tbody tr:hover {
-  background: #221f22;
-}
-
-.project {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.project svg {
-  flex: 0 0 auto;
-}
-
-.project-name {
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.project-green svg {
-  color: var(--project-green);
-}
-.project-green .project-name {
-  color: var(--project-green-text);
-}
-
-.project-orange svg {
-  color: var(--project-orange);
-}
-.project-orange .project-name {
-  color: var(--project-orange-text);
-}
-
-.project-blue svg {
-  color: var(--project-blue);
-}
-.project-blue .project-name {
-  color: var(--project-blue-text);
-}
-
-.client {
-  color: var(--text);
-  font-weight: 500;
-}
-
-.billable-badge {
+.tv-timer {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  min-width: 92px;
+  height: 34px;
+  padding: 0 12px;
   border-radius: var(--radius);
+  border: var(--hairline) solid var(--control-line);
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.tv-start {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--billable);
+  color: #131213;
+  padding-left: 2px;
+}
+
+.tv-start:hover {
+  background: #cf95c7;
+}
+
+/* ---------- week nav ---------- */
+
+.tv-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 var(--pad) 12px;
+}
+
+.tv-views {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tv-views .icon-btn.is-active {
   background: var(--nav-active-bg);
   color: var(--billable);
 }
 
-.rate-value {
-  font-weight: 500;
-}
-
-.rate-currency {
+.tv-restart {
   color: var(--text-muted);
 }
 
-/* Time status: label above a progress track that fills the cell. */
-.time-status {
+.tv-restart:hover {
+  color: var(--text);
+}
+
+/* ---------- logged / planned summary ---------- */
+
+.tv-summary {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 var(--pad) 12px;
+  font-size: 13px;
 }
 
-.time-status-label {
-  font-size: 12px;
-  font-weight: 400;
+.tv-sum-label {
   color: var(--text-muted);
-  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
-.time-status-label .dot {
-  margin: 0 5px;
-}
-
-.track {
-  display: block;
-  height: 4px;
+.tv-sum-track {
+  flex: 1 1 0;
+  min-width: 60px;
+  height: 6px;
   border-radius: 999px;
   background: var(--track);
   overflow: hidden;
 }
 
-.track-fill {
+.tv-sum-fill {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--under);
+  transition: width 0.25s ease;
 }
 
-.track-fill.over {
-  background: var(--over);
+.tv-sum-value {
+  flex: 0 0 auto;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
-.variance {
+.tv-sum-link {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.tv-sum-link:hover {
+  color: var(--text);
+}
+
+/* ---------- day headers ---------- */
+
+.tv-dayhead {
+  border-top: var(--hairline) solid var(--line);
+  align-items: center;
+}
+
+.tv-gutter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.tv-zoom {
+  gap: 4px;
+}
+
+.tv-zoom button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+.tv-zoom button:hover {
+  background: #262426;
+  color: var(--text);
+}
+
+.tv-day {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding-left: 10px;
+  border-left: var(--hairline) solid var(--line);
+}
+
+.tv-day-date {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.tv-day-date.today {
+  background: var(--today-badge);
+  color: var(--billable);
+}
+
+.tv-day-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tv-day-name {
+  font-size: 14px;
   font-weight: 500;
+}
+
+.tv-day-totals {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* What actually happened outranks what was intended, so it gets the accent. */
+.tv-day-totals .logged {
+  color: var(--billable);
+}
+
+/* ---------- all-day band ---------- */
+
+.tv-allday {
+  border-top: var(--hairline) solid var(--line);
+  padding: 6px 0;
+  align-items: start;
+}
+
+.tv-allday-close {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+.tv-allday-close:hover {
+  background: #262426;
+  color: var(--text);
+}
+
+.tv-allday-lanes {
+  grid-column: 2 / -1;
+  position: relative;
+  height: 24px;
+}
+
+/* ---------- hourly grid ---------- */
+
+/* Wraps the scroller so the plan pill can float over the grid without
+ * scrolling away with it. */
+.tv-scroll-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tv-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-top: var(--hairline) solid var(--line);
+}
+
+.tv-grid {
+  position: relative;
+}
+
+.tv-hours {
+  position: relative;
+  display: block;
+}
+
+.tv-hour {
+  position: absolute;
+  left: 6px;
+  font-size: 11px;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.tv-hour.first {
+  transform: translateY(2px);
+}
+
+.tv-cols {
+  grid-column: 2 / -1;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.tv-hline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: var(--hairline) solid var(--line);
+  pointer-events: none;
+}
+
+/*
+ * Every day is split in two: LOGGED on the left, PLANNED on the right. A task
+ * can hold a block in both at once — the estimate on the right, the actual on
+ * the left — so an overrun shows up as a height difference rather than as a
+ * number someone has to go and look up.
+ *
+ * The lane divider is dimmer than the day divider, so the eye groups the pair.
+ */
+.tv-day-col {
+  position: relative;
+  display: flex;
+  border-left: var(--hairline) solid var(--line);
+}
+
+.tv-lane {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.tv-lane-planned {
+  border-left: var(--hairline) solid rgba(255, 255, 255, 0.05);
+}
+
+/* Sticky LOGGED / PLANNED labels, one pair per day, at the top of the grid. */
+.tv-lanehead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 20px;
+  background: #131213;
+}
+
+.tv-lanehead-day {
+  display: flex;
+  border-left: var(--hairline) solid var(--line);
+}
+
+.tv-lanehead-cell {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.tv-now {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--now-line);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.tv-now::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--now-line);
+}
+
+/* ---------- entry blocks ---------- */
+
+/* Measured off the live app: #9494f9 fill, a 0.667px #2727a5 outline, 8px
+ * radius, and 12px/600 title in near-black. */
+/* A block on a different project takes that project's colour pair. */
+.tv-block.p-orange {
+  background: var(--project-orange);
+  border-color: #8f2f16;
+}
+
+.ed-pill.project.p-orange {
+  background: #6b2b12;
+  color: var(--project-orange-text);
+}
+
+.ed-pill.project.p-orange:hover {
+  background: #7d3316;
+}
+
+.ed-var-pct {
+  margin-left: 5px;
+  opacity: 0.85;
+}
+
+.tv-block {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: var(--hairline) solid var(--entry-line);
+  background: var(--project-blue);
+  overflow: hidden;
+  color: var(--entry-ink);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.tv-block-body {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tv-block-title {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  overflow: hidden;
+}
+
+/* Short blocks keep the title to one line so the estimate still fits. */
+.tv-block.tight .tv-block-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.tv-block-meta {
+  font-size: 11.5px;
+  line-height: 15px;
+  opacity: 0.82;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.variance.positive {
-  color: var(--under);
+.tv-block-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 2px;
+  font-size: 11px;
+  font-weight: 500;
 }
 
-.variance.negative {
-  color: var(--over);
+.tv-block-dur {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
 }
 
-.add-project {
+.tv-block-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  opacity: 0.75;
+}
+
+/* Project fills, for the header pill and the summary bars. Planned and logged
+ * blocks share one fill; the lane and the footer icon tell them apart, exactly
+ * as in the live app. */
+.c-green {
+  background: var(--project-green);
+}
+.c-orange {
+  background: var(--project-orange);
+}
+.c-blue {
+  background: var(--project-blue);
+}
+
+/* ---------- suggestions ---------- */
+
+.tv-suggested {
+  background: var(--sugg-fill);
+  border: 1px dashed var(--sugg-line);
+  color: var(--sugg-text);
+  /* So the accept / reject buttons can hang outside the block. */
+  overflow: visible;
+}
+
+.tv-suggested:hover,
+.tv-suggested:focus-within {
+  z-index: 20;
+}
+
+.tv-suggested .tv-block-title {
+  color: #ffffff;
+}
+
+.tv-suggested .tv-block-body {
+  overflow: hidden;
+}
+
+.tv-suggested:hover,
+.tv-suggested:focus-within {
+  background: #2b2769;
+}
+
+/* The range leads, the cohort follows. Splitting the claim is what lets it fit
+ * a 110px lane and still be scannable. */
+.tv-est {
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 13.5px;
+}
+
+.tv-est-range {
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.tv-est-basis {
+  color: var(--sugg-text);
+}
+
+.tv-est-note {
+  margin-top: 3px;
+  color: #b1abe0;
+  font-style: italic;
+}
+
+/*
+ * Accept / reject sit OUTSIDE the block, off its right edge, as in the live
+ * app. During the suggestion phase the next day's logged lane is empty, so
+ * that strip is free real estate; on the last column they flip to the left.
+ */
+.tv-sugg-controls {
+  position: absolute;
+  top: 0;
+  right: -66px;
+  display: none;
+  gap: 6px;
+  z-index: 5;
+}
+
+.tv-sugg-controls.flip {
+  right: auto;
+  left: -66px;
+}
+
+/*
+ * Starting a planned block. On hover the footer spells out "planned" and a play
+ * button takes the place of the billable/tag icons — the live app's gesture for
+ * tracking against an estimate. There is no separate "log time" affordance.
+ */
+.tv-play {
+  display: none;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: var(--billable);
+  color: var(--entry-ink);
+  padding-left: 1px;
+  flex: 0 0 auto;
+}
+
+.tv-play:hover {
+  background: #cf95c7;
+}
+
+.tv-planned:hover .tv-play,
+.tv-planned:focus-within .tv-play {
+  display: grid;
+}
+
+.tv-planned:hover .tv-block-icons,
+.tv-planned:focus-within .tv-block-icons {
+  display: none;
+}
+
+.tv-block-foot {
+  min-width: 0;
+}
+
+.tv-block-dur {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tv-suggested:hover .tv-sugg-controls,
+.tv-suggested:focus-within .tv-sugg-controls,
+.tv-block.changed:hover .tv-sugg-controls,
+.tv-block.changed:focus-within .tv-sugg-controls {
+  display: flex;
+}
+
+/* An adjusted block lifts the same way a hovered suggestion does, so its
+ * controls paint over the neighbouring lane rather than under it. */
+.tv-block.changed:hover,
+.tv-block.changed:focus-within {
+  z-index: 20;
+}
+
+.tv-sugg-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.tv-sugg-btn.accept {
+  background: #2f7d52;
+}
+
+.tv-sugg-btn.accept:hover {
+  background: #379460;
+}
+
+.tv-sugg-btn.reject {
+  background: #2e2c2e;
+}
+
+.tv-sugg-btn.reject:hover {
+  background: #3d3a3d;
+}
+
+/*
+ * Floating "accept them all" affordance. It sits at the TOP of the grid and is
+ * centred over the columns the suggestions occupy, so it points at what it is
+ * offering rather than parking itself in the middle of the view. `left` is set
+ * inline from the suggestion spread.
+ */
+.tv-plan-pill {
+  position: absolute;
+  top: 12px;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 32px;
-  margin: 6px 0 0 18px;
-  padding: 0 6px;
-  border-radius: 4px;
+  height: 38px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #131213;
+  font-size: 14px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  z-index: 20;
+}
+
+/* The adjustment pill takes the accent, matching the chips on the blocks it
+ * is offering to confirm. */
+.tv-plan-pill.change {
+  background: var(--billable);
+}
+
+.tv-plan-pill.change span {
+  color: #4a2044;
+}
+
+.tv-plan-pill.change:hover span {
+  color: #131213;
+}
+
+.tv-plan-pill strong {
+  font-weight: 600;
+}
+
+.tv-plan-pill span {
+  color: #55525a;
+}
+
+.tv-plan-pill:hover span {
+  color: #131213;
+}
+
+/* ===========================================================================
+ * Onboarding
+ *
+ * Three questions over the calendar. The scrim is only partly opaque and the
+ * card is deliberately narrow: the empty week has to stay readable behind it,
+ * because the payoff is watching that week fill the moment Q3 is answered.
+ * =========================================================================*/
+
+.ob-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(10, 9, 10, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.ob-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 22px 24px 20px;
+  border-radius: 14px;
+  border: var(--hairline) solid var(--control-line);
+  background: #1c1a1c;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+}
+
+.ob-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.ob-count {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.32px;
   text-transform: uppercase;
-  color: var(--text);
+  color: var(--text-muted);
 }
 
-.add-project:hover {
+.ob-back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: -6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.ob-back:hover {
   background: #262426;
-}
-
-/* ---------- reports: date picker ---------- */
-
-.date-group {
-  display: flex;
-  align-items: center;
-  border: var(--hairline) solid var(--control-line);
-  border-radius: 6px;
-}
-
-.date-group .arrow {
-  padding: 7px 9px;
   color: var(--text);
-  display: grid;
-  place-items: center;
 }
 
-.date-group .arrow:hover {
-  color: var(--billable);
-}
-
-.date-label {
+.ob-dots {
   display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 10px;
-  font-size: 13px;
-  font-weight: 500;
+  gap: 5px;
 }
 
-.date-label .muted {
-  color: var(--text-muted);
+.ob-dot {
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--line);
 }
 
-/* ---------- reports: cards ---------- */
-
-.card {
-  border: var(--hairline) solid var(--line);
-  border-radius: var(--radius);
-  margin-bottom: 12px;
+.ob-dot.on {
+  background: var(--billable);
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  padding: 18px 0;
-}
-
-.stat {
-  padding: 0 20px;
-  border-left: var(--hairline) solid var(--line);
-}
-
-.stat:first-child {
-  border-left: none;
-}
-
-.stat-label {
-  color: var(--text-muted);
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: 22px;
-  font-weight: 500;
+.ob-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
-.stat-value .unit,
-.stat-value .pct {
-  font-size: 16px;
-  font-weight: 400;
-}
-
-.stat-value .pct {
+.ob-sub {
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 19px;
   color: var(--text-muted);
 }
 
-/* ---------- reports: chart ---------- */
-
-.chart-card {
-  padding: 18px 20px 14px;
+.ob-field {
+  display: block;
+  margin-bottom: 14px;
 }
 
-.section-title {
+.ob-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.ob-input,
+.ob-select select {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  border: var(--hairline) solid var(--control-line);
+  background: var(--content-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.ob-input:focus,
+.ob-select select:focus {
+  outline: none;
+  border-color: var(--billable);
+}
+
+.ob-select {
+  position: relative;
+  display: block;
+}
+
+.ob-select select {
+  appearance: none;
+  padding-right: 34px;
+  cursor: pointer;
+}
+
+.ob-select svg {
+  position: absolute;
+  right: 11px;
+  top: 11px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Native date inputs render a bright picker glyph on a dark field. */
+.ob-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.75);
+  cursor: pointer;
+}
+
+.ob-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.ob-choice {
+  height: 44px;
+  border-radius: var(--radius);
+  border: var(--hairline) solid var(--control-line);
+  background: var(--content-bg);
   font-size: 14px;
   font-weight: 500;
-  margin: 0 0 22px;
+  color: var(--text);
 }
 
-.chart {
+.ob-choice:hover {
+  background: #262426;
+}
+
+.ob-choice.on {
+  border-color: var(--billable);
+  background: var(--nav-active-bg);
+  color: var(--billable);
+  font-weight: 600;
+}
+
+.ob-foot {
   display: flex;
-  gap: 10px;
-}
-
-.y-axis {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 46px;
-  height: 192px;
-  color: var(--text-muted);
-  font-size: 11px;
-  text-align: left;
-  transform: translateY(-6px);
-}
-
-.plot {
-  flex: 1;
-  position: relative;
-  height: 192px;
-}
-
-.gridline {
-  position: absolute;
-  left: 0;
-  right: 0;
-  border-top: 1px dashed rgba(255, 255, 255, 0.12);
-}
-
-.gridline.baseline {
-  border-top-style: solid;
-  border-top-color: rgba(255, 255, 255, 0.22);
-}
-
-.bars {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  align-items: end;
-}
-
-.bar-col {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-  position: relative;
+  gap: 12px;
+  margin-top: 22px;
 }
 
-.bar-value {
+/* Skip is a peer of Continue, not a footnote — the friction has to be optional. */
+.ob-skip {
+  height: 36px;
+  padding: 0 12px;
+  margin-left: -12px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.ob-skip:hover {
+  background: #262426;
+  color: var(--text);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary:disabled:hover {
+  background: var(--billable);
+}
+
+/* ===========================================================================
+ * Entry details panel
+ *
+ * Measured off the live app: a 470px card on #1c1a1c with a hairline border,
+ * 8px radius and a soft drop shadow, floating above the grid and anchored
+ * beside the entry it belongs to.
+ * =========================================================================*/
+
+.tv-details {
+  position: absolute;
+  z-index: 30;
+  width: 470px;
+  max-width: calc(100% - var(--gutter-w) - 16px);
+}
+
+.ed-card {
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius);
+  background: var(--content-bg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  padding: 14px 16px 12px;
+}
+
+.ed-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ed-kind {
   font-size: 11px;
-  margin-bottom: 4px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.ed-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+.ed-icon:hover {
+  background: #262426;
+  color: var(--text);
+}
+
+/* The one accent control in the header, as in the live app. */
+.ed-icon.accent {
+  border-radius: 50%;
+  background: var(--billable);
+  color: var(--entry-ink);
+  padding-left: 1px;
+}
+
+.ed-icon.accent:hover {
+  background: #cf95c7;
+  color: var(--entry-ink);
+}
+
+.ed-title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  margin-bottom: 12px;
+}
+
+.ed-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.ed-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
   white-space: nowrap;
 }
 
-.bar-value.zero {
+/*
+ * Task and Tags stay empty for the life of the prototype — nothing here ever
+ * sets them, and a filled pill would imply data that does not exist. Only the
+ * project is known, so only the project pill carries a value.
+ */
+.ed-pill.empty {
+  border: var(--hairline) solid var(--control-line);
   color: var(--text-muted);
 }
 
-.bar {
-  width: 73%;
-  background: var(--billable);
-  border-radius: 2px 2px 0 0;
+.ed-pill.empty:hover {
+  background: #262426;
 }
 
-.x-axis {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  margin: 10px 0 0 56px;
-  text-align: center;
+.ed-pill.empty kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ed-pill.project {
+  background: #1e1e85;
+  color: var(--project-blue-text);
+}
+
+.ed-pill.project:hover {
+  background: #26269c;
+}
+
+.ed-pill.money {
+  padding: 0 12px;
+  border: var(--hairline) solid var(--control-line);
+  color: var(--text-muted);
+}
+
+.ed-pill.money.on {
+  border-color: transparent;
+  background: rgba(194, 130, 185, 0.15);
+  color: var(--billable);
+}
+
+/* ---------- start / end / duration ---------- */
+
+.ed-times {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ed-date {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius);
+  background: #131213;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ed-time {
+  width: 78px;
+  height: 28px;
+  padding: 0 6px;
+  border: var(--hairline) solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.ed-time:hover {
+  background: #262426;
+}
+
+.ed-time:focus {
+  outline: none;
+  border-color: var(--billable);
+  background: #262426;
+}
+
+.ed-time.dur {
+  width: 68px;
+}
+
+.ed-arrow {
+  color: var(--text-muted);
+}
+
+.ed-dur {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  color: var(--text-muted);
+}
+
+/* ---------- why this number ---------- */
+
+.ed-why {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--sugg-fill);
+  border: var(--hairline) solid var(--sugg-line);
+  margin-bottom: 12px;
+}
+
+.ed-why-head {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.ed-why-line {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--sugg-text);
+}
+
+.ed-why-note {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 17px;
+  color: #b1abe0;
+}
+
+.ed-why-degraded {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 17px;
+  font-style: italic;
+  color: #b1abe0;
+}
+
+.ed-logged {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.ed-logged-label {
+  color: var(--text-muted);
+}
+
+.ed-logged-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- footer ---------- */
+
+.ed-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ed-reject {
+  height: 32px;
+  padding: 0 12px;
+  margin-left: -12px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.ed-reject:hover {
+  background: #262426;
+  color: var(--over);
+}
+
+.ed-save kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.18);
+  font: inherit;
   font-size: 12px;
 }
 
-.x-axis .date {
-  color: var(--text-muted);
-  margin-top: 2px;
+/* The block whose panel is open keeps a visible tie to it. */
+.tv-block.open {
+  outline: 2px solid var(--billable);
+  outline-offset: 1px;
 }
 
-.legend {
+/* ===========================================================================
+ * Learning progression
+ *
+ * Three surfaces, in order of how much they matter:
+ *   1. the blocks themselves  — the estimate that moved, marked where it moved
+ *   2. the details panel      — the reasoning, one click away
+ *   3. the banner             — names the moment, once, and gets out of the way
+ * =========================================================================*/
+
+/* ---------- a block whose estimate just moved ---------- */
+
+.tv-block.changed {
+  outline: 2px solid var(--billable);
+  outline-offset: -1px;
+  overflow: visible;
+}
+
+.tv-changed {
+  position: absolute;
+  top: -9px;
+  left: 6px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  height: 17px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--billable);
+  color: var(--entry-ink);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- details panel: what changed, and what it cost ---------- */
+
+.ed-why-change {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: var(--hairline) solid var(--sugg-line);
+}
+
+.ed-why-from {
+  font-size: 14px;
+  color: #b1abe0;
+  text-decoration: line-through;
+}
+
+.ed-why-to {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.ed-why-tag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--billable);
+}
+
+.ed-var {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ed-var.over {
+  color: var(--over);
+}
+
+.ed-var.under {
+  color: var(--under);
+}
+
+.ed-logged-basis {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ===========================================================================
+ * Notifications
+ *
+ * Toggl already has a home for "the system concluded something": the bell in
+ * the sidebar rail. The learning progression speaks through it rather than
+ * through a ribbon of its own. Measured off the live drawer.
+ * =========================================================================*/
+
+.rail-bell {
+  position: relative;
+}
+
+.rail-bell.on {
+  color: var(--text);
+}
+
+/* An unread count on the bell is the only cue the progression gets outside the
+ * calendar, so it is the accent and it announces itself once on arrival. */
+.rail-badge {
+  position: absolute;
+  top: 4px;
+  right: -1px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--billable);
+  color: var(--entry-ink);
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1;
+  animation: badge-in 0.45s ease-out;
+}
+
+@keyframes badge-in {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Anchored to the rail, opening up and to the right of the bell. */
+.nd {
+  position: absolute;
+  left: calc(var(--rail-w) + 4px);
+  bottom: 52px;
+  z-index: 60;
+  width: 385px;
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: var(--hairline) solid var(--line);
+  background: var(--content-bg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.nd-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: var(--hairline) solid var(--line);
+  flex: 0 0 auto;
+}
+
+.nd-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nd-count {
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--billable);
+  color: var(--entry-ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nd-select {
+  position: relative;
+}
+
+/* Measured: transparent, muted, 12px/500, 28px tall, 8px radius. It only
+ * takes the accent while hovered or open — it is not a permanent purple pill. */
+.nd-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.nd-filter:hover,
+.nd-filter[aria-expanded="true"] {
+  background: var(--nav-active-bg);
+  color: var(--billable);
+}
+
+/* A real menu, not a toggle: both states are listed and the current one is
+ * marked, so the user can see what the other option is before picking it. */
+.nd-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 5;
+  min-width: 112px;
+  padding: 4px;
+  border-radius: var(--radius);
+  border: var(--hairline) solid var(--line);
+  background: var(--content-bg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.nd-option {
+  display: block;
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 5px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.nd-option:hover {
+  background: #262426;
+}
+
+.nd-option.on {
+  background: var(--nav-active-bg);
+  color: var(--billable);
+}
+
+.nd-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+.nd-icon:hover {
+  background: #262426;
+  color: var(--text);
+}
+
+.nd-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.nd-item {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: var(--hairline) solid var(--line);
+}
+
+.nd-item.unread {
+  cursor: pointer;
+}
+
+.nd-item.unread:hover {
+  background: #221f22;
+}
+
+/* Read ones step back, so the drawer reads as a queue rather than a log. */
+.nd-item.read .nd-item-title {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.nd-item.read .nd-avatar {
+  opacity: 0.65;
+}
+
+/* The second way to mark one read; clicking the row is the first. Bottom-right
+ * of the row and flush to its corner, 32x28, transparent — as in the live app. */
+.nd-tick {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: none;
+  place-items: center;
+  width: 32px;
+  height: 28px;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+}
+
+.nd-tick:hover {
+  background: #262426;
+}
+
+.nd-item.unread:hover .nd-tick,
+.nd-item.unread:focus-within .nd-tick {
+  display: grid;
+}
+
+.nd-item:last-child {
+  border-bottom: none;
+}
+
+.nd-avatar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2e2c2e;
+  color: var(--text);
+}
+
+/* The two beats where the system actually changed something get the accent,
+ * the same way the affected blocks do. */
+.nd-adjusted .nd-avatar,
+.nd-personal .nd-avatar {
+  background: var(--nav-active-bg);
+  color: var(--billable);
+}
+
+.nd-body {
+  min-width: 0;
+}
+
+.nd-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.nd-item-detail {
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--text-muted);
+}
+
+.nd-progress {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  margin-top: 8px;
+  padding: 0 7px;
+  border-radius: 999px;
+  border: var(--hairline) solid var(--line);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.nd-time {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.nd-empty {
+  margin: 0;
+  padding: 24px 14px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.nd-mark {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  margin-top: 14px;
-  font-size: 12px;
-}
-
-.swatch {
-  width: 11px;
-  height: 11px;
-  border-radius: 2px;
-  background: var(--billable);
-}
-
-/* ---------- reports: breakdown ---------- */
-
-.breakdown-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 20px;
-  gap: 12px;
-}
-
-.breakdown-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.breakdown-controls .label {
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead th {
-  text-align: left;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  padding: 10px 12px;
+  height: 42px;
   border-top: var(--hairline) solid var(--line);
-  border-bottom: var(--hairline) solid var(--line);
-  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
-.breakdown th .th-inner {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.breakdown th.num .th-inner,
-.breakdown td.num {
-  justify-content: flex-end;
-  text-align: right;
-}
-
-.breakdown th:first-child,
-.breakdown td:first-child {
-  padding-left: 20px;
-}
-
-.breakdown th.add {
-  width: 44px;
-  text-align: center;
-}
-
-.breakdown tbody td {
-  padding: 14px 12px;
-  font-size: 13px;
-  border-bottom: var(--hairline) solid var(--line);
-}
-
-.expander {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+.nd-mark:hover {
+  background: #262426;
   color: var(--text);
 }
 
-.member-count {
-  color: var(--text-muted);
+/* ===========================================================================
+ * Out of scope
+ *
+ * Where every sidebar link other than Timer lands. It keeps the app shell, so
+ * it reads as an edge of the prototype rather than a broken build, and gives
+ * one obvious way back.
+ * =========================================================================*/
+
+.nf {
+  display: grid;
+  place-items: center;
+  padding: 24px;
 }
 
-.unit-sm {
-  color: var(--text-muted);
-  font-size: 12px;
-  margin-left: 3px;
-}
-
-.cost-value {
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-underline-offset: 3px;
-  text-decoration-color: var(--text-muted);
-}
-
-.pagination {
+.nf-card {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 20px;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 520px;
+}
+
+/* The Toggl mark, at the size the brand uses it as a badge. */
+.nf-mark {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--logo);
+  color: var(--sidebar-bg);
+  margin-bottom: 22px;
+  box-shadow: 0 0 0 10px rgba(236, 133, 254, 0.09);
+}
+
+.nf-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-transform: uppercase;
+  color: var(--billable);
+  margin-bottom: 10px;
+}
+
+.nf-title {
+  margin: 0 0 14px;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 36px;
+  letter-spacing: -0.02em;
+}
+
+.nf-body {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 23px;
+  color: var(--text-muted);
+}
+
+/* The one place worth emphasising: the name of the area that does exist. */
+.nf-body strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.nf-body-dim {
+  font-size: 14px;
+  line-height: 21px;
+  color: #8b888a;
+}
+
+.nf-path {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 5px;
+  border: var(--hairline) solid var(--line);
+  background: #221f22;
+  color: var(--project-blue-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
 }
 
-.page-select {
+.nf-cta {
+  margin-top: 14px;
+  text-decoration: none;
+}
+
+/* ===========================================================================
+ * Ask Toggl
+ *
+ * A 416px right-hand panel on #1c1a1c behind a hairline left border, measured
+ * off the live one. It takes layout space rather than floating, so the week
+ * narrows as it opens — animating the width is what makes it read as sliding
+ * in from the edge rather than appearing.
+ * =========================================================================*/
+
+.at {
+  flex: 0 0 auto;
+  width: 0;
+  overflow: hidden;
+  background: var(--content-bg);
+  transition: width 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.at.open {
+  width: 416px;
+  border-left: var(--hairline) solid var(--line);
+}
+
+.at-inner {
+  width: 416px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px 12px;
+}
+
+.at-head {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 8px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+.at-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.at-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
+  color: var(--text-muted);
+}
+
+.at-icon:hover {
+  background: #262426;
+  color: var(--text);
+}
+
+/* The conversation area. Empty at the top, composer pinned to the bottom —
+ * the same shape as the live panel. */
+.at-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow-y: auto;
+  padding-bottom: 16px;
+}
+
+.at-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-transform: uppercase;
+  color: var(--billable);
+  margin-bottom: 8px;
+}
+
+.at-welcome {
+  margin: 0 0 18px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.at-prompts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.at-prompts li {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--text-muted);
+}
+
+.at-arrow {
+  color: var(--billable);
+  flex: 0 0 auto;
+}
+
+.at-thread {
+  display: flex;
+  flex-direction: column;
+}
+
+.at-you {
+  align-self: flex-end;
+  max-width: 85%;
+  margin-bottom: 18px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #2a272a;
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.at-answer {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* Three dots while it pretends to think. */
+.at-thinking {
+  display: flex;
+  gap: 5px;
+  margin: 4px 0;
+}
+
+.at-thinking span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  animation: at-dot 1s infinite ease-in-out;
+}
+
+.at-thinking span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.at-thinking span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes at-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+.at-composer {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 8px 10px 10px;
+  border-radius: var(--radius);
+  border: var(--hairline) solid var(--control-line);
+  background: var(--content-bg);
+}
+
+.at-context {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 7px;
+  margin-bottom: 6px;
+  border-radius: 5px;
   border: var(--hairline) solid var(--line);
-}
-
-.pagination .of {
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-muted);
 }
 
-.pagination .arrow {
+.at-input {
+  display: block;
+  width: 100%;
+  padding: 0 40px 0 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  resize: none;
+}
+
+.at-input::placeholder {
   color: var(--text-muted);
-  padding: 4px;
+}
+
+.at-input:focus {
+  outline: none;
+}
+
+.at-send {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  background: var(--billable);
+  color: var(--entry-ink);
+}
+
+.at-send:hover:not(:disabled) {
+  background: #cf95c7;
+}
+
+/* Muted until there is something to send, as in the live composer. */
+.at-send:disabled {
+  background: #632e5c;
+  color: #2a1526;
   cursor: default;
+}
+
+.at-foot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.at-beta {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #2a272a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }

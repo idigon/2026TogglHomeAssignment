@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { isNavCollapsed, setNavCollapsed } from "@/components/timer/session";
 import {
   Approvals,
   Bell,
@@ -30,7 +34,7 @@ type NavItem = {
 const navSections: { label: string; items: NavItem[] }[] = [
   {
     label: "Track",
-    items: [{ name: "Timer", href: "/timer", icon: <Clock /> }],
+    items: [{ name: "Timer", href: "/calendar", icon: <Clock /> }],
   },
   {
     label: "Analyze",
@@ -39,7 +43,7 @@ const navSections: { label: string; items: NavItem[] }[] = [
   {
     label: "Plan",
     items: [
-      { name: "Projects", href: "/", icon: <Folder /> },
+      { name: "Projects", href: "/projects", icon: <Folder /> },
       { name: "Tasks", href: "/tasks", icon: <Tasks /> },
       { name: "Timeline", href: "/timeline", icon: <Timeline />, starred: true },
     ],
@@ -54,14 +58,45 @@ const navSections: { label: string; items: NavItem[] }[] = [
   },
 ];
 
+type Props = {
+  active: string;
+  /** Unread notification count for the bell badge. */
+  unread?: number;
+  notificationsOpen?: boolean;
+  onToggleNotifications?: () => void;
+  /** Opens the Ask Toggl panel. Absent on routes that do not have one. */
+  onAskToggl?: () => void;
+  /** The drawer itself, anchored to the bell by the rail. */
+  children?: React.ReactNode;
+};
+
 /**
  * The sidebar is two columns on one black panel: a 48px icon rail and a
  * 200px nav. The collapse toggle lives in the rail but is rendered inside the
  * nav flow and shifted left, so it always sits directly under the last nav item.
  */
-export default function Sidebar({ active }: { active: string }) {
+export default function Sidebar({
+  active,
+  unread = 0,
+  notificationsOpen = false,
+  onToggleNotifications,
+  onAskToggl,
+  children,
+}: Props) {
+  /*
+   * Collapsing keeps the 48px icon rail and slides the 200px nav column out
+   * from under it — the panel narrows rather than the nav vanishing. Kept in
+   * the module-scope session so it survives navigation, like everything else.
+   */
+  const [collapsed, setCollapsed] = useState(isNavCollapsed);
+  const toggle = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    setNavCollapsed(next);
+  };
+
   return (
-    <div className="side">
+    <div className={`side${collapsed ? " collapsed" : ""}`}>
       <div className="rail">
         <span className="mark" aria-hidden>
           <Power size={24} />
@@ -70,11 +105,17 @@ export default function Sidebar({ active }: { active: string }) {
         <div className="rail-spacer" />
 
         <button className="rail-btn" aria-label="Account">
-          <span className="avatar">IG</span>
+          <span className="avatar">C</span>
         </button>
-        <button className="rail-btn" aria-label="Notifications">
+        <button
+          className={`rail-btn rail-bell${notificationsOpen ? " on" : ""}`}
+          aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}
+          onClick={onToggleNotifications}
+        >
           <Bell />
+          {unread > 0 && <span className="rail-badge">{unread}</span>}
         </button>
+        {children}
         <button className="rail-btn" aria-label="Share feedback">
           <Send />
         </button>
@@ -85,14 +126,14 @@ export default function Sidebar({ active }: { active: string }) {
 
       <nav className="nav">
         <div className="org">
-          <div className="org-name">Ignacio&apos;s organization</div>
+          <div className="org-name">Candidate&apos;s organization</div>
           <ChevronDown size={16} />
         </div>
 
-        <div className="ask">
+        <button className="ask" onClick={onAskToggl} disabled={!onAskToggl}>
           <span>Ask Toggl ⏎</span>
           <kbd>Ctrl K</kbd>
-        </div>
+        </button>
 
         {navSections.map((section) => (
           <div key={section.label}>
@@ -113,8 +154,13 @@ export default function Sidebar({ active }: { active: string }) {
           </div>
         ))}
 
-        <button className="collapse" aria-label="Toggle sidebar">
-          <Collapse />
+        <button
+          className="collapse"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
+          onClick={toggle}
+        >
+          <Collapse className={collapsed ? "flipped" : undefined} />
         </button>
 
         <div className="nav-spacer" />
