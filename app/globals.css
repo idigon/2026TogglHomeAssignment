@@ -31,6 +31,8 @@
   --project-green-text: #c6ece5;
   --project-orange: #ee7a63;
   --project-orange-text: #f3c3b9;
+  --project-grey: #8f8a8d;
+  --project-grey-text: #d8d5d7;
   --project-blue: #9494f9;
   --project-blue-text: #cacafc;
 
@@ -1005,6 +1007,22 @@ a {
   background: #7d3316;
 }
 
+/* Grey is the quiet one: same lightness as the others, no hue, so a block on
+ * it reads as an entry without asking to be read first. */
+.tv-block.p-grey {
+  background: var(--project-grey);
+  border-color: #5e5a5c;
+}
+
+.ed-pill.project.p-grey {
+  background: #3b383a;
+  color: var(--project-grey-text);
+}
+
+.ed-pill.project.p-grey:hover {
+  background: #454143;
+}
+
 .ed-var-pct {
   margin-left: 5px;
   opacity: 0.85;
@@ -1085,6 +1103,9 @@ a {
 }
 .c-orange {
   background: var(--project-orange);
+}
+.c-grey {
+  background: var(--project-grey);
 }
 .c-blue {
   background: var(--project-blue);

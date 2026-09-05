@@ -12,8 +12,11 @@
  * of the user's own entries.
  * =========================================================================*/
 
-/** Project swatch. Only the blue pair is used now that this is the only view. */
-export type ProjectColor = "green" | "orange" | "blue";
+/**
+ * Project swatch. The client project is blue; grey is what the calendar gives
+ * anything that is not client work, so it sits back rather than competing.
+ */
+export type ProjectColor = "green" | "orange" | "grey" | "blue";
 
 /* ---------------------------------------------------------------------------
  * 1. The week
@@ -523,8 +526,10 @@ export const PLAN: PlannedTask[] = [
 /* ---------------------------------------------------------------------------
  * 6z. One entry that is not client work
  *
- * Lands already logged, on a different project chip, late on Saturday where it
- * cannot compete with the four design reviews for an evaluator's attention.
+ * Lands already logged, late on Saturday where it cannot compete with the four
+ * design reviews for an evaluator's attention. Its chip is grey for the same
+ * reason: a colour of its own would have made the aside the loudest thing on
+ * the week.
  *
  * Deliberately outside the model: it is seeded straight into the logs without
  * entering the log order, so it produces no notification, feeds no benchmark,
@@ -538,7 +543,7 @@ export const PERSONAL_TASK: PlannedTask = {
   type: "assignment",
   day: 5,
   start: 13 * 60,
-  chip: { name: "Personal", color: "orange" },
+  chip: { name: "Personal", color: "grey" },
   noteKind: "assignment",
 };
 
