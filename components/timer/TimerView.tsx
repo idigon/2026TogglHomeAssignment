@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CalendarSm,
   ChevronDown,
@@ -23,7 +24,6 @@ import {
   LEARNING,
   PEER_BENCHMARKS,
   PERSONAL_TASK,
-  PERSONAL_TASK_LOG,
   PLAN,
   PROJECT,
   TASK_TYPE_LABELS,
@@ -38,11 +38,13 @@ import {
 import type { Profile, TaskType } from "@/lib/timerData";
 import Sidebar from "@/components/Sidebar";
 import AskToggl from "./AskToggl";
+import GetStarted from "./GetStarted";
 import NotificationDrawer from "./NotificationDrawer";
 import { clearSession, loadSession, saveSession } from "./session";
 import type { NotificationFilter } from "./NotificationDrawer";
 import Onboarding from "./Onboarding";
 import WeekGrid from "./WeekGrid";
+import type { ChecklistStep } from "./GetStarted";
 import type { AppNotification, Entry, EntryStatus, Lane } from "./types";
 
 /**
@@ -68,6 +70,7 @@ type LogRecord = { minutes: number; start?: number };
 type Phase = "onboarding" | "empty" | "week";
 
 export default function TimerView() {
+  const router = useRouter();
   // Resume whatever the user had going before they navigated away.
   const prior = loadSession();
 
@@ -110,6 +113,9 @@ export default function TimerView() {
   /** Key of the entry whose details panel is open. */
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [askOpen, setAskOpen] = useState(false);
+  const [checklistCollapsed, setChecklistCollapsed] = useState(false);
+  /** So the auto-collapse at the end fires once, not on every later render. */
+  const [checklistSettled, setChecklistSettled] = useState(false);
 
   // Snapshot on every change, so leaving and coming back resumes rather than restarts.
   useEffect(() => {
@@ -139,18 +145,24 @@ export default function TimerView() {
   ]);
 
   const hasPlan = phase === "week";
+  const needsOnboarding = phase === "onboarding";
+
+  /* No answers yet: onboarding owns its own route. */
+  useEffect(() => {
+    if (needsOnboarding) router.replace("/onboarding");
+  }, [needsOnboarding, router]);
 
   /* Ctrl/Cmd+K, but never over the onboarding questions. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        if (phase !== "onboarding") setAskOpen((v) => !v);
+        if (!needsOnboarding) setAskOpen((v) => !v);
       }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [phase]);
+  }, [needsOnboarding]);
 
   const project = {
     name: profile.projectName || PROJECT.name,
@@ -305,6 +317,18 @@ export default function TimerView() {
     const acc: Partial<Record<TaskType, number[]>> = {};
     const out: AppNotification[] = [];
 
+    // Skipping the questions leaves nothing to suggest. Say why.
+    if (phase === "empty") {
+      out.push({
+        id: "skipped",
+        kind: "skipped",
+        headline: COPY.skipped.headline,
+        detail: COPY.skipped.detail,
+        time: `${formatDayLabel(WEEK.todayIndex)}, ${formatClock(WEEK.nowMinutes)}`,
+        read: readIds.includes("skipped"),
+      });
+    }
+
     for (let i = 0; i < logOrder.length; i++) {
       const id = logOrder[i];
       const task = PLAN.find((t) => t.id === id);
@@ -327,7 +351,7 @@ export default function TimerView() {
       const time = `${formatDayLabel(task.day)}, ${formatClock(
         (log.start ?? planEdits[id]?.start ?? task.start) + log.minutes,
       )}`;
-      const base = { id, type: task.type, label, count, progress, time, read: readIds.includes(id) };
+      const base = { id, progress, time, read: readIds.includes(id) };
 
       if (count === 1) {
         out.push({
@@ -375,23 +399,44 @@ export default function TimerView() {
 
     // Newest first, as the drawer shows them.
     return out.reverse();
-  }, [logOrder, logs, profile, readIds, rejected, planEdits]);
+  }, [phase, logOrder, logs, profile, readIds, rejected, planEdits]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  /** Q3 answered — the plan lands. Skip — nothing lands, and that is the point. */
-  const finishOnboarding = useCallback((answers: Profile | null) => {
-    if (answers) {
-      setProfile(answers);
-      setPhase("week");
-      // Already accepted and already logged. Not added to logOrder, so it
-      // raises no notification and touches no benchmark.
-      setStatuses((prev) => ({ ...prev, [PERSONAL_TASK.id]: "planned" }));
-      setLogs((prev) => ({ ...prev, [PERSONAL_TASK.id]: PERSONAL_TASK_LOG }));
-    } else {
-      setPhase("empty");
+  /*
+   * The three things worth doing, in order. Each is derived from the same state
+   * the rest of the view runs on, so nothing has to be told when a step is met.
+   */
+  const planAccepted =
+    hasPlan && entries.length > 0 && !entries.some((e) => e.status === "suggested");
+  const hasLogged = logOrder.length > 0;
+  const learned = notifications.some((n) => n.kind === "personal");
+
+  const checklist: ChecklistStep[] = [
+    {
+      label: "Review and adjust the suggested plan",
+      sub: "You can adjust any planned time if you do not agree with the benchmark",
+      done: planAccepted,
+    },
+    {
+      label: "Start logging time",
+      sub: "Press Play on any planned block",
+      done: hasLogged,
+    },
+    {
+      label: "Continue logging time so we learn from your behavior",
+      sub: `Takes ${LEARNING.personalThreshold} of a kind`,
+      done: learned,
+    },
+  ];
+
+  /* The last step is the end of the demo, so the panel folds itself away. */
+  useEffect(() => {
+    if (learned && !checklistSettled) {
+      setChecklistCollapsed(true);
+      setChecklistSettled(true);
     }
-  }, []);
+  }, [learned, checklistSettled]);
 
   const accept = useCallback((id: string) => {
     setStatuses((prev) => ({ ...prev, [id]: "planned" }));
@@ -494,6 +539,7 @@ export default function TimerView() {
 
   const restart = useCallback(() => {
     clearSession();
+    router.push("/onboarding");
     setPhase("onboarding");
     setProfile(DEFAULT_PROFILE);
     setStatuses({});
@@ -502,12 +548,14 @@ export default function TimerView() {
     setReadIds([]);
     setDrawerOpen(false);
     setNotifFilter("Unread");
+    setChecklistCollapsed(false);
+    setChecklistSettled(false);
     setRejected([]);
     setPlanEdits({});
     setResolvedChanges({});
     setOpenKey(null);
     setHourHeight(GRID.hourHeight);
-  }, []);
+  }, [router]);
 
   const zoom = useCallback((delta: number) => {
     setHourHeight((h) =>
@@ -521,6 +569,9 @@ export default function TimerView() {
   // Both summary bars share a scale, so their lengths are comparable.
   const barMax = Math.max(loggedTotal, plannedTotal, 1);
 
+  // Nothing to show while the redirect to /onboarding is in flight.
+  if (needsOnboarding) return null;
+
   return (
     <div className="app app-fixed">
       <Sidebar
@@ -528,21 +579,34 @@ export default function TimerView() {
         unread={unreadCount}
         notificationsOpen={drawerOpen}
         onToggleNotifications={() => setDrawerOpen((v) => !v)}
-        onAskToggl={phase === "onboarding" ? undefined : () => setAskOpen(true)}
-      >
-        {drawerOpen && (
-          <NotificationDrawer
-            notifications={notifications}
-            filter={notifFilter}
-            onFilter={setNotifFilter}
-            onMarkRead={(id) =>
-              setReadIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
-            }
-            onMarkAllRead={() => setReadIds(notifications.map((n) => n.id))}
-            onClose={() => setDrawerOpen(false)}
-          />
-        )}
-      </Sidebar>
+        onAskToggl={() => setAskOpen(true)}
+        checklist={
+          hasPlan ? (
+            <GetStarted
+              steps={checklist}
+              collapsed={checklistCollapsed}
+              onToggle={() => setChecklistCollapsed((v) => !v)}
+            />
+          ) : undefined
+        }
+      />
+
+      {/*
+       * Rendered beside the sidebar, not inside it: .side clips its overflow so
+       * the nav can slide away on collapse, which was cutting the drawer off.
+       */}
+      {drawerOpen && (
+        <NotificationDrawer
+          notifications={notifications}
+          filter={notifFilter}
+          onFilter={setNotifFilter}
+          onMarkRead={(id) =>
+            setReadIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
+          }
+          onMarkAllRead={() => setReadIds(notifications.map((n) => n.id))}
+          onClose={() => setDrawerOpen(false)}
+        />
+      )}
 
       <main className="main main-timer">
       {/*
@@ -681,7 +745,6 @@ export default function TimerView() {
         onAcceptAllChanges={acceptAllChanges}
       />
 
-      {phase === "onboarding" && <Onboarding onFinish={finishOnboarding} />}
       </main>
 
       <AskToggl open={askOpen} onClose={() => setAskOpen(false)} />

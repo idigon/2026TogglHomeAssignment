@@ -112,10 +112,77 @@ export type Profile = {
   clientType: string;
   projectName: string;
   clientName: string;
-  deadline: string;
 };
 
+/*
+ * Toggl's real onboarding opens by asking what you will mainly use it for.
+ * This prototype adds a fourth answer at the top of that list — the one this
+ * whole build is about — and leaves the other three in place, disabled, so the
+ * addition is legible as an addition rather than a replacement.
+ */
+export const ONBOARDING_INTENTS: {
+  id: string;
+  title: string;
+  description: string;
+  /** Only the first one leads anywhere here. */
+  supported: boolean;
+}[] = [
+  {
+    id: "benchmarking",
+    title: "Smart benchmarking",
+    description:
+      "Get realistic time estimates from day one, drawn from freelancers doing your kind of work — then watch them turn into your own numbers as you log.",
+    supported: true,
+  },
+  {
+    id: "time",
+    title: "See where time goes",
+    description: "Log hours and spot where they really go",
+    supported: false,
+  },
+  {
+    id: "plan",
+    title: "Plan and assign work",
+    description: "Map out tasks, then track against the plan",
+    supported: false,
+  },
+  {
+    id: "projects",
+    title: "Keep projects on track",
+    description: "Watch progress, profitability, and capacity in one place",
+    supported: false,
+  },
+];
+
+/*
+ * Step two of Toggl's onboarding, reproduced. Neither connector does anything
+ * here — calendar integrations are explicitly out of scope — so both Connect
+ * buttons are disabled and the screen says why.
+ */
+export const ONBOARDING_CONNECTORS = [
+  {
+    id: "google",
+    name: "Google Calendar",
+    description: "Import your meetings so they turn into tracked time",
+  },
+  {
+    id: "outlook",
+    name: "Microsoft Outlook",
+    description: "Import your meetings so they turn into tracked time",
+  },
+];
+
 export const ONBOARDING = {
+  welcome: "Welcome to Toggl 2.0",
+  intentQuestion: "What will you mainly use Toggl for?",
+  intentSub: "We'll tailor your first experience to help you get there.",
+  /** Shown under the list when an option this prototype does not build is picked. */
+  unsupported: "Not part of this prototype. Pick Smart benchmarking to continue.",
+  calendarTitle: "Log time from your meetings and events",
+  calendarSub:
+    "Connect your calendar and your meetings and events are ready to track",
+  autoTrack: "Auto-track calendar events",
+  connectorsNote: "Calendar connections are not part of this prototype.",
   disciplines: [
     {
       label: "Design",
@@ -149,8 +216,6 @@ export const DEFAULT_PROFILE: Profile = {
   clientType: "SMBs",
   projectName: PROJECT.name,
   clientName: PROJECT.client,
-  // The week is pinned to W36 2026 (Mon 31 Aug – Sun 6 Sep).
-  deadline: "2026-09-06",
 };
 
 /**
@@ -643,6 +708,17 @@ export const COPY = {
     progress: (n: number, label: string) =>
       `${Math.min(n, LEARNING.personalThreshold)} of ${LEARNING.personalThreshold} ${label}s logged`,
     why: "Why?",
+  },
+
+  /*
+   * Skipping onboarding leaves an empty calendar. Saying nothing would read as
+   * a broken build, so the drawer explains what the skip cost and how to undo
+   * it — the same argument the product makes, applied to the user's own choice.
+   */
+  skipped: {
+    headline: "No cohort, no estimates",
+    detail:
+      "Without your discipline and client type there's no group to compare you to, so there's nothing to suggest. Your first estimates would have come from freelancers doing the same work. Restart demo to answer the three questions.",
   },
 
   /** The delta a logged entry ran against the estimate it was working to. */

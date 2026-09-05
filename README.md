@@ -32,14 +32,27 @@ heights, side by side, an inch apart.
 
 ## The flow
 
-**1. Three questions.** Discipline + specialization (dependent selects), typical
-client type, and the project you are starting. The calendar sits visible and
-empty behind them — you can see where you are about to land.
+**1. Onboarding, inside Toggl's own.** The live product opens by asking what you
+will mainly use Toggl for, and tailors the first experience to the answer —
+which is exactly the seam this feature belongs in. So rather than a separate
+overlay, **Smart benchmarking** is added as a fourth answer at the top of that
+list. The other three stay, and stay selectable, but disable Continue: leaving
+them out would hide that this is one option among several, and greying them out
+would hide what they are.
+
+Choosing it continues through Toggl's calendar step — reproduced, with both
+**Connect** buttons disabled, since calendar integrations are out of scope —
+and then into three questions: discipline + specialization (dependent selects),
+typical client type, and the project you are starting.
+
+The whole flow lives at `/onboarding`, on its own route before the app shell,
+as Toggl's does. `/calendar` bounces there until it has been answered.
 
 Q1 and Q2 are the entire reason Toggl can say anything on day one: they pick a
 peer cohort. Each question says what it buys rather than just asking. **Skip** is
 always live and equally weighted, and skipping lands on an **empty calendar** —
-no cohort, nothing to suggest. That is the honest outcome, and it is the point
+no cohort, nothing to suggest — with a notification in the drawer saying what
+that cost and how to undo it. That is the honest outcome, and it is the point
 of asking.
 
 **2. The week arrives.** Thirteen suggestions the instant Q3 is answered. No
@@ -92,6 +105,12 @@ Personalisation triggers on the **number of completed entries**, not elapsed
 days. The UI says so out loud on every notification — `2 of 3 design reviews
 logged` — because a user who is not told will assume it was time passing.
 
+Toggl's **Get started** checklist in the sidebar tracks the same three beats, so
+there is somewhere to look that says what to do next without a tour or a
+tooltip. Items strike through as they are met — review the plan, log something,
+log enough for the system to learn — and the panel folds itself away when the
+third one completes, because that is the end of the demo.
+
 **Restart demo** in the toolbar replays the whole thing from the first question.
 
 ---
@@ -112,14 +131,16 @@ a stock Next.js App Router app — no config needed.
 | --- | --- |
 | `lib/timerData.ts` | **The tuning file.** Every mock value and every estimate number. |
 | `app/calendar/page.tsx` | The one real view |
+| `app/onboarding/page.tsx` | The onboarding route; hands the calendar a seeded session |
 | `components/timer/TimerView.tsx` | All state, and the derivation of entries and notifications |
 | `components/timer/WeekGrid.tsx` | Day headers, all-day row, the two-lane grid |
 | `components/timer/EntryBlock.tsx` | One block, in either lane |
 | `components/timer/EntryDetails.tsx` | Details panel: times, and why the number is what it is |
 | `components/timer/NotificationDrawer.tsx` | The bell drawer, where the progression speaks |
-| `components/timer/Onboarding.tsx` | The three questions |
+| `components/timer/Onboarding.tsx` | Toggl's intent screen plus the three questions |
+| `components/timer/GetStarted.tsx` | The sidebar checklist |
 | `components/timer/AskToggl.tsx` | The Ask Toggl side panel |
-| `components/timer/session.ts` | Module-scope state, so navigating away does not restart the demo |
+| `components/timer/session.ts` | Module-scope state, and the seed onboarding hands over |
 | `components/timer/layout.ts` | Minutes → pixels, and within-lane overlap |
 | `components/timer/types.ts` | Entry, lane, beat, notification |
 | `components/Sidebar.tsx` | Toggl shell nav, collapse, and the notification bell |
