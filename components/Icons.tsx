@@ -45,15 +45,23 @@ export const ChevronDown = ({ size = 16, className }: IconProps) => (
   </svg>
 );
 
-export const ChevronLeft = ({ size = 14, className }: IconProps) => (
-  <svg {...line(size)} className={className}>
-    <path d="M15 18l-6-6 6-6" />
+export const ChevronLeft = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M9.208 3.293a1 1 0 0 1 1.32-.083l.094.083a1 1 0 0 1 0 1.414L7.33 8l3.292 3.293a1 1 0 0 1 .083 1.32l-.083.094a1 1 0 0 1-1.414 0l-4.001-4a1 1 0 0 1 0-1.414z"
+    />
   </svg>
 );
 
-export const ChevronRight = ({ size = 14, className }: IconProps) => (
-  <svg {...line(size)} className={className}>
-    <path d="M9 18l6-6-6-6" />
+export const ChevronRight = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M6.792 12.707a1 1 0 0 1-1.32.083l-.094-.083a1 1 0 0 1 0-1.414L8.67 8 5.378 4.707a1 1 0 0 1-.083-1.32l.083-.094a1 1 0 0 1 1.414 0l4.001 4a1 1 0 0 1 0 1.414z"
+    />
   </svg>
 );
 
@@ -452,5 +460,159 @@ export const Rocket = ({ size = 13, className }: IconProps) => (
   <svg {...line(size)} className={className}>
     <path d="M5 15c-1.5 1.5-2 6-2 6s4.5-.5 6-2a3 3 0 00-4-4z" />
     <path d="M9 13l-2-2c1-5 5-8 11-8 0 6-3 10-8 11l-1-1z" />
+  </svg>
+);
+
+/* ---------- calendar ----------
+ *
+ * Toggl's own glyphs, read out of the live app's DOM rather than redrawn by
+ * eye: the same 16x16 solid frame as the rest of the icon set.
+ */
+
+/** Stopwatch — a LOGGED entry: time that actually happened. */
+export const Stopwatch = ({ size = 12, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      d="M4 .75c0-.416.334-.75.75-.75h3.5c.416 0 .75.334.75.75s-.334.75-.75.75h-1v1.544a6.45 6.45 0 0 1 3.556 1.59l.913-.915a.75.75 0 0 1 1.06 1.06l-.97.968a6.499 6.499 0 0 1-5.31 10.25 6.498 6.498 0 0 1-.75-12.953V1.5h-.999A.75.75 0 0 1 4 .75M6.5 14.5a5 5 0 1 0 0-10 5 5 0 0 0 0 10m.75-7.75V10c0 .416-.334.75-.75.75a.75.75 0 0 1-.75-.75V6.75c0-.416.334-.75.75-.75s.75.334.75.75"
+    />
+  </svg>
+);
+
+/** Calendar — a PLANNED entry: an estimate. Doubles as the calendar view toggle. */
+export const CalendarSm = ({ size = 12, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M3 1a1 1 0 0 1 2 0v1h6V1a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h1zm11 5H2v8h12z"
+    />
+  </svg>
+);
+
+export const ViewCalendar = ({ size = 16, className }: IconProps) => (
+  <CalendarSm size={size} className={className} />
+);
+
+export const ViewSplit = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M2.648 15h10.704C15.123 15 16 14.21 16 12.643V3.357C16 1.791 15.123 1 13.352 1H2.648C.886 1 0 1.783 0 3.357v9.286C0 14.217.886 15 2.648 15m.017-1.224c-.843 0-1.307-.403-1.307-1.194V3.418c0-.79.464-1.194 1.307-1.194h10.67c.835 0 1.307.403 1.307 1.194v9.164c0 .79-.472 1.194-1.307 1.194zm5.61.235h1.324V1.996H8.275zm4.647-8.152c.228 0 .388-.137.388-.342V4.095c0-.213-.152-.35-.388-.35h-1.594c-.22 0-.38.137-.38.35v1.422c0 .205.17.342.38.342zm0 3.194c.228 0 .388-.152.388-.342V7.274c0-.198-.152-.35-.388-.35h-1.594c-.22 0-.38.152-.38.35V8.71c0 .19.17.342.38.342zm0 3.179c.228 0 .388-.137.388-.342v-1.422c0-.206-.152-.35-.388-.35h-1.594c-.22 0-.38.144-.38.35v1.422c0 .205.17.342.38.342z"
+    />
+  </svg>
+);
+
+export const ViewList = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M1.5 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3m4-2.5a.999.999 0 1 0 0 2h9a.999.999 0 1 0 0-2zm0 5a.999.999 0 1 0 0 2h9a.999.999 0 1 0 0-2zm0 5a.999.999 0 1 0 0 2h9a.999.999 0 1 0 0-2zm-4 2.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M3 8.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"
+    />
+  </svg>
+);
+
+export const ViewGrid = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm7 7h5V2H9zM2 7h5V2H2zm0 2v5h5V9zm12 0H9v5h5z"
+    />
+  </svg>
+);
+
+/** Toggl's own gear — replaces the outline one the Projects view used. */
+export const Gear = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6m.3-11c.387 0 .8.298.922.666l.533 1.595q.556.17 1.063.44l1.504-.751c.346-.173.85-.093 1.122.18l.425.426c.274.273.354.775.181 1.122l-.752 1.504q.27.506.442 1.064l1.594.532c.367.122.666.535.666.922v.6c0 .387-.298.8-.666.922l-1.595.533q-.17.556-.44 1.063l.751 1.504c.173.346.092.85-.18 1.122l-.426.425c-.273.274-.775.354-1.122.181l-1.504-.752q-.506.27-1.063.441l-.533 1.595C9.1 15.701 8.687 16 8.3 16h-.602c-.386 0-.798-.298-.92-.666l-.533-1.594a6 6 0 0 1-1.064-.442l-1.504.752c-.346.173-.85.092-1.122-.18l-.425-.426c-.274-.273-.354-.775-.181-1.122l.752-1.504a6 6 0 0 1-.442-1.064L.666 9.222C.299 9.1 0 8.687 0 8.3v-.602c0-.386.298-.798.666-.92l1.595-.534q.17-.556.44-1.063L1.95 3.678c-.173-.346-.093-.85.18-1.122l.426-.425c.273-.274.775-.354 1.122-.181l1.504.752q.506-.27 1.064-.442L6.778.666C6.9.299 7.313 0 7.7 0z"
+    />
+  </svg>
+);
+
+export const PanelRight = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M9 2.5v11H2a.5.5 0 0 1-.5-.5V3c0-.275.225-.5.5-.5zm7 .5c0-1.103-.897-2-2-2H2C.897 1 0 1.897 0 3v10c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2zm-2 .75c0 .416-.334.75-.75.75h-1.5a.75.75 0 0 1-.75-.75c0-.416.334-.75.75-.75h1.5c.416 0 .75.334.75.75M13.25 6c.416 0 .75.334.75.75s-.334.75-.75.75h-1.5a.75.75 0 0 1-.75-.75c0-.416.334-.75.75-.75zM14 9.75c0 .416-.334.75-.75.75h-1.5a.75.75 0 0 1-.75-.75c0-.416.334-.75.75-.75h1.5c.416 0 .75.334.75.75"
+    />
+  </svg>
+);
+
+export const ArrowUp = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M8 15a1 1 0 0 1-1-1V4.414L3.707 7.707a1 1 0 0 1-1.414-1.414l5-5a1 1 0 0 1 1.414 0l5 5a1 1 0 1 1-1.414 1.414L9 4.414V14a1 1 0 0 1-1 1"
+    />
+  </svg>
+);
+
+export const Play = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      d="M5 3.3a.8.8 0 0 1 1.22-.68l7.3 4.7a.8.8 0 0 1 0 1.36l-7.3 4.7A.8.8 0 0 1 5 12.7z"
+    />
+  </svg>
+);
+
+export const Tag = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      d="M2 3.6A1.6 1.6 0 0 1 3.6 2h4.05c.42 0 .83.17 1.13.47l5.75 5.75a1.6 1.6 0 0 1 0 2.26l-4.05 4.05a1.6 1.6 0 0 1-2.26 0L2.47 8.78A1.6 1.6 0 0 1 2 7.65zM5.5 6.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2"
+    />
+  </svg>
+);
+
+export const Kebab = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      d="M8 4.2a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6m0 5.1a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6m0 5.1a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6"
+    />
+  </svg>
+);
+
+export const Minus = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path fill="currentColor" d="M3 7.25h10a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1 0-1.5" />
+  </svg>
+);
+
+export const Check = ({ size = 16, className }: IconProps) => (
+  <svg {...solid(size)} className={className}>
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M6.268 9.687 12.3 3.401a.944.944 0 0 1 1.285-.25c.426.276.541.835.257 1.248l-6.66 7.2a.944.944 0 0 1-1.427.137L2.271 8.418a.88.88 0 0 1 0-1.273.946.946 0 0 1 1.31 0z"
+    />
+  </svg>
+);
+
+export const X = ({ size = 16, className }: IconProps) => (
+  <svg {...line(size)} className={className}>
+    <path d="M6 6l12 12M18 6L6 18" strokeWidth={2.2} />
+  </svg>
+);
+
+export const Pencil = ({ size = 16, className }: IconProps) => (
+  <svg {...line(size)} className={className}>
+    <path d="M4 20h4L20 8a2.8 2.8 0 0 0-4-4L4 16z" strokeWidth={2} />
+  </svg>
+);
+
+export const Restart = ({ size = 16, className }: IconProps) => (
+  <svg {...line(size)} className={className}>
+    <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" />
+    <path d="M3 3.5V10h6.5" />
   </svg>
 );

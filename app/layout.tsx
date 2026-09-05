@@ -5,8 +5,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Toggl 2.0 - Projects",
-  description: "Projects list view",
+  title: "Toggl 2.0 — Calendar",
+  description:
+    "Estimation intelligence in week one: a week planned from anonymised peer benchmarks that learns your real pace as you log time.",
 };
 
 export default function RootLayout({
