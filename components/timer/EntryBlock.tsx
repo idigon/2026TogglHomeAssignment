@@ -65,23 +65,28 @@ export default function EntryBlock({
   const trackable = status === "planned" && !hasLog;
 
   /*
-   * What fits, in priority order, spending the block's height line by line.
+   * What fits, in priority order, spending the block's height a row at a time.
    * Nothing is shown that there is no room for, so the block never has to clip
    * a line in half; on a suggestion the estimate outranks the project line,
    * because every task here belongs to the same project and the whole point of
    * the block is the number and where it came from.
    *
-   * The costs are the rendered heights of each row, in px: one title line, the
-   * range, and the basis and note at the two lines they are clamped to.
+   * The costs are the rows' measured heights: 16px a title line, 15.5 for the
+   * range with its margin, and 27 and 30 for the basis and the note at the two
+   * lines each is clamped to. CHROME is the block's own padding, border and
+   * footer, which are always there. A pixel of slack on top, because a row that
+   * fits exactly still shows a hairline of the next one.
    */
-  let room = height - 4 /* padding */ - 17 /* footer */ - 16 /* one title line */;
+  const CHROME = 5.33 + 15.33 + 1;
+  const rendered = Math.max(height - 2, 16);
+  let room = rendered - CHROME - 16; // one title line is never dropped
   const spend = (cost: number, wanted: boolean) => {
     if (!wanted || room < cost) return false;
     room -= cost;
     return true;
   };
 
-  const showRange = spend(16, suggested);
+  const showRange = spend(15.5, suggested);
   const showBasis = spend(27, showRange);
   const showNote = spend(30, showBasis && Boolean(estimate.note));
   const showMeta = spend(15, !suggested);

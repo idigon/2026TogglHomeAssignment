@@ -1062,7 +1062,9 @@ a {
   -webkit-line-clamp: var(--title-lines, 2);
   line-clamp: var(--title-lines, 2);
   overflow: hidden;
-  overflow-wrap: break-word;
+  /* anywhere, not break-word: in a lane this narrow a single word can be wider
+   * than the block, and that is the case break-word declines to handle. */
+  overflow-wrap: anywhere;
   font-size: 12px;
   font-weight: 600;
   line-height: 16px;
@@ -1169,7 +1171,7 @@ a {
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .tv-est-basis {
