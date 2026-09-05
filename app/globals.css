@@ -475,6 +475,68 @@ a {
   background: #262426;
 }
 
+/* ---------- week date picker ----------
+ *
+ * A segmented control, measured off the live app: three 32px segments on
+ * #1c1a1c, rounded only at the outer ends, with hairlines top and bottom.
+ * Lost when the Reports view was deleted; it belongs to the calendar nav.
+ */
+
+.date-group {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  flex: 0 0 auto;
+}
+
+.date-group .arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: var(--content-bg);
+  border: var(--hairline) solid var(--line);
+  color: var(--text);
+}
+
+.date-group .arrow:first-child {
+  border-radius: var(--radius) 0 0 var(--radius);
+  border-right: none;
+}
+
+.date-group .arrow:last-child {
+  border-radius: 0 var(--radius) var(--radius) 0;
+  border-left: none;
+}
+
+.date-group .arrow:hover {
+  background: #262426;
+}
+
+.date-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  background: var(--content-bg);
+  border-top: var(--hairline) solid var(--line);
+  border-bottom: var(--hairline) solid var(--line);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.date-label svg {
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+.date-label .muted {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 /* ===========================================================================
  * Timer — week calendar
  *
@@ -1622,6 +1684,305 @@ a {
 
 .btn-primary:disabled:hover {
   background: var(--billable);
+}
+
+/* ===========================================================================
+ * Entry details panel
+ *
+ * Measured off the live app: a 470px card on #1c1a1c with a hairline border,
+ * 8px radius and a soft drop shadow, floating above the grid and anchored
+ * beside the entry it belongs to.
+ * =========================================================================*/
+
+.tv-details {
+  position: absolute;
+  z-index: 30;
+  width: 470px;
+  max-width: calc(100% - var(--gutter-w) - 16px);
+}
+
+.ed-card {
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius);
+  background: var(--content-bg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  padding: 14px 16px 12px;
+}
+
+.ed-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ed-kind {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.ed-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+.ed-icon:hover {
+  background: #262426;
+  color: var(--text);
+}
+
+/* The one accent control in the header, as in the live app. */
+.ed-icon.accent {
+  border-radius: 50%;
+  background: var(--billable);
+  color: var(--entry-ink);
+  padding-left: 1px;
+}
+
+.ed-icon.accent:hover {
+  background: #cf95c7;
+  color: var(--entry-ink);
+}
+
+.ed-title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  margin-bottom: 12px;
+}
+
+.ed-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.ed-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/*
+ * Task and Tags stay empty for the life of the prototype — nothing here ever
+ * sets them, and a filled pill would imply data that does not exist. Only the
+ * project is known, so only the project pill carries a value.
+ */
+.ed-pill.empty {
+  border: var(--hairline) solid var(--control-line);
+  color: var(--text-muted);
+}
+
+.ed-pill.empty:hover {
+  background: #262426;
+}
+
+.ed-pill.empty kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ed-pill.project {
+  background: #1e1e85;
+  color: var(--project-blue-text);
+}
+
+.ed-pill.project:hover {
+  background: #26269c;
+}
+
+.ed-pill.money {
+  padding: 0 12px;
+  border: var(--hairline) solid var(--control-line);
+  color: var(--text-muted);
+}
+
+.ed-pill.money.on {
+  border-color: transparent;
+  background: rgba(194, 130, 185, 0.15);
+  color: var(--billable);
+}
+
+/* ---------- start / end / duration ---------- */
+
+.ed-times {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ed-date {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius);
+  background: #131213;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ed-time {
+  width: 78px;
+  height: 28px;
+  padding: 0 6px;
+  border: var(--hairline) solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.ed-time:hover {
+  background: #262426;
+}
+
+.ed-time:focus {
+  outline: none;
+  border-color: var(--billable);
+  background: #262426;
+}
+
+.ed-time.dur {
+  width: 68px;
+}
+
+.ed-arrow {
+  color: var(--text-muted);
+}
+
+.ed-dur {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  color: var(--text-muted);
+}
+
+/* ---------- why this number ---------- */
+
+.ed-why {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--sugg-fill);
+  border: var(--hairline) solid var(--sugg-line);
+  margin-bottom: 12px;
+}
+
+.ed-why-head {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.ed-why-line {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--sugg-text);
+}
+
+.ed-why-note {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 17px;
+  color: #b1abe0;
+}
+
+.ed-why-degraded {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 17px;
+  font-style: italic;
+  color: #b1abe0;
+}
+
+.ed-logged {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.ed-logged-label {
+  color: var(--text-muted);
+}
+
+.ed-logged-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- footer ---------- */
+
+.ed-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ed-reject {
+  height: 32px;
+  padding: 0 12px;
+  margin-left: -12px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.ed-reject:hover {
+  background: #262426;
+  color: var(--over);
+}
+
+.ed-save kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.18);
+  font: inherit;
+  font-size: 12px;
+}
+
+/* The block whose panel is open keeps a visible tie to it. */
+.tv-block.open {
+  outline: 2px solid var(--billable);
+  outline-offset: 1px;
 }
 
 /* ===========================================================================
